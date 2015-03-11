@@ -1,0 +1,97 @@
+<project name="QwStoretWqxEtl" default="default">
+	
+	<!-- default and it's depends are the normal automated full ETL. -->
+	
+    <target name="default" depends="transformAndLoadData"/>
+
+    <target name="transformAndLoadData">
+        <echo>Running the main ETL Package</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/transformAndLoadData.sql"/>
+        </exec>
+    </target>
+
+	<!-- The rest of these are if you want to run the ETL step-by-step manually. --> 
+	
+    <target name="dropRI">
+        <echo>Transform the Station Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/dropRI.sql"/>
+        </exec>
+    </target>
+
+    <target name="transformStation">
+        <echo>Transform the Station Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/transformStation.sql"/>
+        </exec>
+    </target>
+
+    <target name="transformResult">
+        <echo>Transform the Result Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/transformResult.sql"/>
+        </exec>
+    </target>
+
+    <target name="createSummaries">
+        <echo>Create the Summary Tables</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/createSummaries.sql"/>
+        </exec>
+    </target>
+
+    <target name="createCodes">
+        <echo>Create the Code Lookup Tables</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/createCodes.sql"/>
+        </exec>
+    </target>
+
+	<target name="buildIndexes">
+        <echo>Build the Indexes</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/buildIndexes.sql"/>
+        </exec>
+    </target>
+	
+    <target name="addRI">
+        <echo>Transform the Station Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/addRI.sql"/>
+        </exec>
+    </target>
+
+    <target name="analyze">
+        <echo>Analyze the New Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/analyze.sql"/>
+        </exec>
+    </target>
+
+    <target name="validate">
+        <echo>Validate the ETL Process</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/validate.sql"/>
+        </exec>
+    </target>
+
+    <target name="install">
+        <echo>Install the New Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/install.sql"/>
+        </exec>
+    </target>
+
+</project>
