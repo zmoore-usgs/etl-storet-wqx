@@ -53,6 +53,8 @@ begin
 	dbms_output.put_line('qwportal_summary');
 	execute immediate 'alter table qwportal_summary exchange partition summary_storet with table qwportal_summary_swap_storet including indexes';
 
+	etl_helper.update_last_etl(3);
+
 end;
 /
 
