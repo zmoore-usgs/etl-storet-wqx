@@ -214,7 +214,7 @@ select 3 data_source_id,
                  on characteristic.chr_storet_id = storetw_di_characteristic.pk_isn
          where activity.acmed_uid <> 3
         union all
-        select fa_result_no_source.station_id + 1000000 station_id, 
+        select fa_result_no_source.station_id, 
                station.site_id,
                fa_result_no_source.event_date,
 	           fa_result_no_source.analytical_method,
@@ -281,7 +281,7 @@ select 3 data_source_id,
                fa_result_no_source.analysis_prep_date_tx
           from fa_result_no_source
                join station_swap_storet station
-                 on fa_result_no_source.site_id + 1000000 = station.station_id) a
+                 on fa_result_no_source.station_id + 1000000 = station.station_id) a
     order by a.station_id;
 
 commit;
