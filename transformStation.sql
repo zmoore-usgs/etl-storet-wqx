@@ -129,7 +129,7 @@ prompt populating storet station
 truncate table station_swap_storet;
 
 insert /*+ append parallel(4) */
-  into station_swap_storet (data_source_id, data_source, station_id, site_id, organization, site_type, huc_12, governmental_unit_code,
+  into station_swap_storet (data_source_id, data_source, station_id, site_id, organization, site_type, huc, governmental_unit_code,
                             geom, station_name, organization_name, description_text, station_type_name, latitude, longitude, map_scale,
                             geopositioning_method, hdatum_id_code, elevation_value, elevation_unit, elevation_method, vdatum_id_code,
                             geoposition_accy_value, geoposition_accy_unit
@@ -141,7 +141,7 @@ select 3 data_source_id,
                org.org_id || '-' || monitoring_location.mloc_id site_id,
                org.org_id organization,
    	           wqx_site_type_conversion.station_group_type site_type,
-               nvl(wqx_station_local.calculated_huc_12, nvl(mloc_huc_12, mloc_huc_8)) huc_12,
+               nvl(wqx_station_local.calculated_huc_12, nvl(mloc_huc_12, mloc_huc_8)) huc,
                case
                  when wqx_station_local.st_fips_cd is not null and
                       wqx_station_local.cnty_fips_cd is not null and
@@ -195,7 +195,7 @@ select 3 data_source_id,
                fa_station_no_source.site_id,
                fa_station_no_source.organization,
            	   fa_station_no_source.site_type,
-               nvl(wqx_station_local.calculated_huc_12, wqx_station_local.huc) huc_12,
+               nvl(wqx_station_local.calculated_huc_12, wqx_station_local.huc) huc,
                case
                  when wqx_station_local.st_fips_cd is not null and
                       wqx_station_local.cnty_fips_cd is not null and
