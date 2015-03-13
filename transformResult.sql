@@ -281,7 +281,7 @@ select 3 data_source_id,
                fa_result_no_source.analysis_prep_date_tx
           from fa_result_no_source
                join station_swap_storet station
-                 on fa_result_no_source.site_id = station.site_id) a
+                 on fa_result_no_source.site_id + 1000000 = station.station_id) a
     order by a.station_id;
 
 commit;
