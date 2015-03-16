@@ -212,9 +212,30 @@ select 3 data_source_id,
                  on result.rlcom_uid = result_lab_comment.rlcom_uid
                left join storetw_di_characteristic
                  on characteristic.chr_storet_id = storetw_di_characteristic.pk_isn
-         where activity.acmed_uid <> 3
-        union all
-        select fa_result_no_source.station_id, 
+         where activity.acmed_uid <> 3) a
+    order by a.station_id;
+
+commit;
+
+insert /*+ append parallel(4) */
+  into pc_result_swap_storet (data_source_id, data_source, station_id, site_id, event_date, analytical_method, activity,
+                              characteristic_name, characteristic_type, sample_media, organization, site_type, huc, governmental_unit_code,
+                              organization_name, activity_type_code, activity_media_subdiv_name, activity_start_time,
+                              act_start_time_zone, activity_stop_date, activity_stop_time, act_stop_time_zone, activity_depth,
+                              activity_depth_unit, activity_depth_ref_point, activity_upper_depth, activity_upper_depth_unit,
+                              activity_lower_depth, activity_lower_depth_unit, project_id, activity_conducting_org, activity_comment,
+                              sample_collect_method_id, sample_collect_method_ctx, sample_collect_method_name, sample_collect_equip_name,
+                              result_id, result_detection_condition_tx, sample_fraction_type, result_measure_value, result_unit,
+                              result_meas_qual_code, result_value_status, statistic_type, result_value_type, weight_basis_type, duration_basis,
+                              temperature_basis_level, particle_size, precision, result_comment, result_depth_meas_value,
+                              result_depth_meas_unit_code, result_depth_alt_ref_pt_txt, sample_tissue_taxonomic_name,
+                              sample_tissue_anatomy_name, analytical_procedure_id, analytical_procedure_source, analytical_method_name,
+                              analytical_method_citation, lab_name, analysis_date_time, lab_remark, detection_limit, detection_limit_unit,
+                              detection_limit_desc, analysis_prep_date_tx)
+select 3 data_source_id,
+       'STORET' data_source,
+       a.*
+  from (select fa_result_no_source.station_id, 
                station.site_id,
                fa_result_no_source.event_date,
 	           fa_result_no_source.analytical_method,
