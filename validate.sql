@@ -34,7 +34,7 @@ begin
     dbms_output.put_line('... station');
     select count(*) into old_rows from station partition (station_storet);
     select count(*) into new_rows from station_swap_storet;
-    if new_rows > 590000 and new_rows > old_rows - 50000 then
+    if new_rows > 500000 and new_rows > old_rows - 50000 then
         pass_fail := 'PASS';
     else
         pass_fail := 'FAIL';
@@ -49,7 +49,7 @@ begin
     dbms_output.put_line('... qw_portal_summary');
     select count(*) into old_rows from qwportal_summary partition (summary_storet);
     select count(*) into new_rows from qwportal_summary_swap_storet;
-    if new_rows > 10000 and new_rows > old_rows - 1000 then
+    if new_rows > 8500 and new_rows > old_rows - 1000 then
         pass_fail := 'PASS';
     else
         pass_fail := 'FAIL';
