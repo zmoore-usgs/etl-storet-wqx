@@ -1,0 +1,47 @@
+directory=WQPSTAGE
+dumpfile=owpub_vmwaters1_wqx_Weekly_%u.cdmp
+logfile=owpub_vmwaters1_wqx_Weekly_impdp.log
+tables=(
+	monitoring_location,
+	organization,
+	country,
+	state,
+	county,
+	vertical_reference_datum,
+	vertical_collection_method,
+	measurement_unit,
+	horizontal_reference_datum,
+	horizontal_collection_method,
+	monitoring_location_type,
+	activity,
+	result,
+	sample_collection_equip,
+	activity_conducting_org,
+	activity_project,
+	project,
+	msunt_uid_depth_height,
+	time_zone,
+	activity_media_subdivision,
+	activity_type,
+	activity_media,
+	characteristic,
+	result_detection_condition,
+	sample_fraction,
+	result_measure_qualifier,
+	result_status,
+	result_statistical_base,
+	result_value_type,
+	result_weight_basis,
+	result_time_basis,
+	result_temperature_basis,
+	analytical_method,
+	analytical_method_context,
+	result_detect_quant_limit,
+	detection_quant_limit_type,
+	result_lab_sample_prep,
+	taxon,
+	sample_tissue_anatomy,
+	result_lab_comment
+	)
+table_exists_action=replace
+EXCLUDE=constraint,index,grant
