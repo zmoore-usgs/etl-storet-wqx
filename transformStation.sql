@@ -7,7 +7,7 @@ whenever oserror exit failure rollback;
 select 'transform station start time: ' || systimestamp from dual;
 
 prompt updating temporary table wqx_station_local from wqx
-
+!!!!!!!!!!!!ONLY US stations are in the tables!!!!!!!!!!!!!!!!!!!
 merge into wqx_station_local o 
       using (select 'WQX' station_source,
                     monitoring_location.mloc_uid station_id,
@@ -37,6 +37,9 @@ merge into wqx_station_local o
                       on monitoring_location.st_uid = state.st_uid
                     left join wqx.county
                       on monitoring_location.cnty_uid = county.cnty_uid
+              where org.org_id != 'WQXTEST' and
+         	        org.org_id != 'TESTGCSWQX' and
+                    org.org_id not like 'WQXWEBTRAINING%'
             ) n
   on (o.station_source = n.station_source and
       o.station_id = n.station_id)
@@ -106,18 +109,18 @@ commit;
 
 prompt calculating huc
 update wqx_station_local 
-   set calculated_huc_12 = (select cat_num
-                              from huc8_conus_hi_ak_pr_dis
-                             where sdo_contains(huc8_conus_hi_ak_pr_dis.geom,
+   set calculated_huc_12 = (select huc8
+                              from huc8_geom_lookup
+                             where sdo_contains(huc8_geom_lookup.geom,
 	                                            wqx_station_local.geom) = 'TRUE')
  where calculated_huc_12 is null;
 commit;
 
 prompt calculating geopolitical data
 update wqx_station_local 
-   set calculated_fips = (select fips
-                            from us_counties_dis_20121015
-                           where sdo_contains(us_counties_dis_20121015.GEOM,
+   set calculated_fips = (select statefp || countyfp
+                            from county_geom_lookup
+                           where sdo_contains(county_geom_lookup.geom,
 					                          wqx_station_local.geom) = 'TRUE')
  where calculated_fips is null;
 commit;
@@ -189,9 +192,10 @@ select 3 data_source_id,
                left join wqx_site_type_conversion
                  on monitoring_location.mltyp_uid = wqx_site_type_conversion.mltyp_uid
          where org.org_id != 'WQXTEST' and
+         	   org.org_id != 'TESTGCSWQX' and
                org.org_id not like 'WQXWEBTRAINING%'
         union all 
-        select wqx_station_local.station_id + 1000000 station_id,
+        select wqx_station_local.station_id + 10000000 station_id,
                fa_station_no_source.site_id,
                fa_station_no_source.organization,
            	   fa_station_no_source.site_type,

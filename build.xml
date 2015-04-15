@@ -1,9 +1,66 @@
 <project name="QwStoretWqxEtl" default="default">
+	<property name="work.dir" value="/pdc/wqp_data" />
 	
 	<!-- default and it's depends are the normal automated full ETL. -->
 	
-    <target name="default" depends="transformAndLoadData"/>
+    <target name="default" depends="scpScript, dos2unix, extractData, importData, grantsOnWqxTables, transformAndLoadData, finishETL"/>
 
+    <target name="scpScript">
+        <echo>Copy the script to ${storet_host}</echo>
+        <scp todir="storet_user:${storet_user_password}@${storet_host}:${work.dir}" trust="true">
+        	<fileset dir=".">
+        		<include name="wqx_dump.sh" />
+        		<include name="wqx_finish.sh" />
+        	</fileset>
+        </scp>
+    </target>
+
+    <target name="dos2unix">
+        <echo>Fix cr/lf in script at ${storet_host}</echo>
+        <sshexec host="${storet_host}"
+            trust="true"
+            username="storet_user"
+            password="${storet_user_password}"
+            command="dos2unix ${work.dir}/wqx_dump.sh ${work.dir}/wqx_finish.sh"
+        	verbose="${verbose}"
+        />
+    </target>
+    
+    <target name="extractData">
+        <echo>Run the script at ${storet_host}</echo>
+        <sshexec host="${storet_host}"
+            trust="true"
+            failonerror="true"
+            username="storet_user"
+            password="${storet_user_password}"
+            command="bash -e -x ${work.dir}/wqx_dump.sh"
+            outputproperty="pullResult"
+        />
+    </target>
+
+    <target name="setStopRun">
+        <echo>Check if we had changes and should continue</echo>
+        <condition property="stopRun">
+            <contains string="${pullResult}" substring="No new export to process." />
+        </condition>
+    </target>
+        
+    <target name="importData" depends="setStopRun" unless="stopRun">
+        <echo>Using impdp to load the storetw schema in ${stagingInstance}</echo>
+        <exec executable="/usr/oracle/app/oracle/product/11.2.0/client_1/bin/impdp" failonerror="true">
+            <arg value="userid=wqx/${wqx_password}@${instance}"/>
+            <arg value="parfile=impdpWqx.par"/>
+        </exec>
+    </target>
+    
+	<target name="grantsOnWqxTables" depends="setStopRun" unless="stopRun">
+        <echo>Grant select on the imported tables in ${stagingInstance}</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqx{wqx_password}@${instance}"/>
+            <arg value="@${basedir}/wqx_grants.sql"/>
+        </exec>
+    </target>
+    
     <target name="transformAndLoadData">
         <echo>Running the main ETL Package</echo>
         <exec executable="sqlplus" failonerror="true">
@@ -94,4 +151,15 @@
         </exec>
     </target>
 
+    <target name="finishETL" depends="setStopRun" unless="stopRun">
+        <echo>Runs the finishing script at ${storet_host}</echo>
+        <sshexec host="${storet_host}"
+            trust="true"
+            failonerror="true"
+            username="storet_user"
+            password="${storet_password}"
+            command="bash -e -x ${work.dir}/wqx_finish.sh"
+        />
+    </target>
+	
 </project>
