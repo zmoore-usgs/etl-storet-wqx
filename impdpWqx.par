@@ -19,7 +19,6 @@ tables=(
 	activity_conducting_org,
 	activity_project,
 	project,
-	msunt_uid_depth_height,
 	time_zone,
 	activity_media_subdivision,
 	activity_type,
