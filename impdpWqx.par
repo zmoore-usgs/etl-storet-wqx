@@ -44,3 +44,4 @@ tables=(
 	)
 table_exists_action=replace
 EXCLUDE=constraint,index,grant
+remap_tablespace=WQX_DATA_STORLDCI:WQP
