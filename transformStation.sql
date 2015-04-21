@@ -7,7 +7,7 @@ whenever oserror exit failure rollback;
 select 'transform station start time: ' || systimestamp from dual;
 
 prompt updating temporary table wqx_station_local from wqx
-!!!!!!!!!!!!ONLY US stations are in the tables!!!!!!!!!!!!!!!!!!!
+--!!!!!!!!!!!!ONLY US stations are in the tables!!!!!!!!!!!!!!!!!!!
 merge into wqx_station_local o 
       using (select 'WQX' station_source,
                     monitoring_location.mloc_uid station_id,
@@ -16,7 +16,7 @@ merge into wqx_station_local o
                     monitoring_location.mloc_longitude longitude,
                     monitoring_location.hrdat_uid hrdat_uid,
                     nvl(mloc_huc_12, mloc_huc_8) huc,
-                    country.cntry_cd,
+                    nvl(country.cntry_cd,country_from_state.cntry_cd) cntry_cd,
                     state.st_fips_cd st_fips_cd,
                     county.cnty_fips_cd,
                     sdo_cs.transform(mdsys.sdo_geometry(2001,
@@ -37,6 +37,8 @@ merge into wqx_station_local o
                       on monitoring_location.st_uid = state.st_uid
                     left join wqx.county
                       on monitoring_location.cnty_uid = county.cnty_uid
+                    left join wqx.country country_from_state
+                      on state.cntry_uid = country_from_state.cntry_uid
               where org.org_id != 'WQXTEST' and
          	        org.org_id != 'TESTGCSWQX' and
                     org.org_id not like 'WQXWEBTRAINING%'
