@@ -43,5 +43,5 @@ tables=(
 	result_lab_comment
 	)
 table_exists_action=replace
-EXCLUDE=constraint,index,grant
+exclude=constraint,index,grant,trigger
 remap_tablespace=WQX_DATA_STORLDCI:WQP
