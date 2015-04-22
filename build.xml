@@ -33,7 +33,7 @@
             failonerror="true"
             username="storet_user"
             password="${storet_user_password}"
-            command="bash -e -x ${work.dir}/wqx_dump.sh"
+            command="bash -e -x ${work.dir}/wqx_dump.sh ${dbFolder}"
             outputproperty="pullResult"
         />
     </target>
