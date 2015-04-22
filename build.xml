@@ -46,7 +46,7 @@
     </target>
         
     <target name="importData" depends="setStopRun" unless="stopRun">
-        <echo>Using impdp to load the storetw schema in ${stagingInstance}</echo>
+        <echo>Using impdp to load the storetw schema in ${instance}</echo>
         <exec executable="/usr/oracle/app/oracle/product/11.2.0/client_1/bin/impdp" failonerror="true">
             <arg value="userid=wqx/${wqx_password}@${instance}"/>
             <arg value="parfile=impdpWqx.par"/>
@@ -54,7 +54,7 @@
     </target>
     
 	<target name="grantsOnWqxTables" depends="setStopRun" unless="stopRun">
-        <echo>Grant select on the imported tables in ${stagingInstance}</echo>
+        <echo>Grant select on the imported tables in ${instance}</echo>
         <exec executable="sqlplus" failonerror="true">
             <arg value="wqx{wqx_password}@${instance}"/>
             <arg value="@${basedir}/wqx_grants.sql"/>

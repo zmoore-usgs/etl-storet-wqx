@@ -7,7 +7,6 @@ whenever oserror exit failure rollback;
 select 'transform station start time: ' || systimestamp from dual;
 
 prompt updating temporary table wqx_station_local from wqx
---!!!!!!!!!!!!ONLY US stations are in the tables!!!!!!!!!!!!!!!!!!!
 merge into wqx_station_local o 
       using (select 'WQX' station_source,
                     monitoring_location.mloc_uid station_id,
@@ -77,7 +76,7 @@ merge into wqx_station_local o
                     site_id,
                     latitude,
                     longitude,
-                    huc_12 huc,
+                    huc,
                     regexp_substr(governmental_unit_code, '[^:]+') cntry_cd,
                     regexp_substr(governmental_unit_code, '[^:]+', 1, 2) st_fips_cd,
                     regexp_substr(governmental_unit_code, '[^:]+', 1, 3) cnty_fips_cd,
@@ -109,6 +108,7 @@ when not matched then insert (station_source, station_id, site_id, latitude, lon
                               n.cnty_fips_cd, n.geom);
 commit;
 
+--!!!!!!!!!!!!ONLY US/(US Teritory) stations are in the huc lookup table (mostly - some overlap on borders)!!!!!!!!!!!!!!!!!!!
 prompt calculating huc
 update wqx_station_local 
    set calculated_huc_12 = (select huc8
@@ -118,13 +118,15 @@ update wqx_station_local
  where calculated_huc_12 is null;
 commit;
 
+--!!!!!!!!!!!!ONLY US/(US Teritory) stations are in the county lookup tables (WQX does identify some US Teritories as a country)!!!!!!!!!!!!!!!!!!!
 prompt calculating geopolitical data
 update wqx_station_local 
    set calculated_fips = (select statefp || countyfp
                             from county_geom_lookup
                            where sdo_contains(county_geom_lookup.geom,
 					                          wqx_station_local.geom) = 'TRUE')
- where calculated_fips is null;
+ where calculated_fips is null and
+       cntry_cd in ('AS','PR','UM','US', 'VI');
 commit;
 
 prompt dropping storet station indexes
@@ -148,10 +150,8 @@ select 3 data_source_id,
    	           wqx_site_type_conversion.station_group_type site_type,
                nvl(wqx_station_local.calculated_huc_12, nvl(mloc_huc_12, mloc_huc_8)) huc,
                case
-                 when wqx_station_local.st_fips_cd is not null and
-                      wqx_station_local.cnty_fips_cd is not null and
-                      (wqx_station_local.calculated_fips is null or
-                       substr(wqx_station_local.calculated_fips, 3) = '000')
+                 when wqx_station_local.calculated_fips is null or
+                      substr(wqx_station_local.calculated_fips, 3) = '000'
                    then wqx_station_local.cntry_cd || ':' || wqx_station_local.st_fips_cd || ':' || wqx_station_local.cnty_fips_cd
                  else 'US:' || substr(wqx_station_local.calculated_fips, 1, 2) || ':' || substr(wqx_station_local.calculated_fips, 3, 3)
                end governmental_unit_code, 
@@ -203,10 +203,8 @@ select 3 data_source_id,
            	   fa_station_no_source.site_type,
                nvl(wqx_station_local.calculated_huc_12, wqx_station_local.huc) huc,
                case
-                 when wqx_station_local.st_fips_cd is not null and
-                      wqx_station_local.cnty_fips_cd is not null and
-                      (wqx_station_local.calculated_fips is null or
-                       substr(wqx_station_local.calculated_fips, 3) = '000')
+                 when wqx_station_local.calculated_fips is null or
+                      substr(wqx_station_local.calculated_fips, 3) = '000'
                    then wqx_station_local.cntry_cd || ':' || wqx_station_local.st_fips_cd || ':' || wqx_station_local.cnty_fips_cd
                  else 'US:' || substr(wqx_station_local.calculated_fips, 1, 2) || ':' || substr(wqx_station_local.calculated_fips, 3, 3)
                end governmental_unit_code, 
