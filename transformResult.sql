@@ -46,7 +46,7 @@ select 3 data_source_id,
 	           end analytical_method,
                station.organization || '-' || activity.act_id activity,
                characteristic.chr_name characteristic_name,
-               nvl(storetw_di_characteristic.characteristic_group_type, 'Not Assigned') characteristic_type,
+               nvl(di_characteristic.characteristic_group_type, 'Not Assigned') characteristic_type,
                activity_media.acmed_name sample_media,
                station.organization,
                station.site_type,
@@ -210,8 +210,8 @@ select 3 data_source_id,
                  on result.stant_uid = sample_tissue_anatomy.stant_uid
                left join wqx.result_lab_comment
                  on result.rlcom_uid = result_lab_comment.rlcom_uid
-               left join storetw_di_characteristic
-                 on characteristic.chr_storet_id = storetw_di_characteristic.pk_isn
+               left join storetw.di_characteristic
+                 on characteristic.chr_storet_id = di_characteristic.pk_isn
          where activity.acmed_uid <> 3) a
     order by a.station_id;
 

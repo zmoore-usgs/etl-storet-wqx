@@ -46,7 +46,7 @@
     </target>
         
     <target name="importData" depends="setStopRun" unless="stopRun">
-        <echo>Using impdp to load the storetw schema in ${instance}</echo>
+        <echo>Using impdp to load the wqp schema in ${instance}</echo>
         <exec executable="/usr/oracle/app/oracle/product/11.2.0/client_1/bin/impdp" failonerror="true">
             <arg value="userid=wqx/${wqx_password}@${instance}"/>
             <arg value="parfile=impdpWqx.par"/>
