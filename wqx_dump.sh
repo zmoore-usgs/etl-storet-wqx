@@ -59,7 +59,7 @@ do
 done
 
 # if any required variables are null or empty, display usage and quit
-[ ! -n "${EXPORT_TYPE}" ] && usage && stop_bad
+[ ! -n "${DB_FOLDER}" ] && usage && stop_bad
 
 WORK_DIR=/mnt/wqp_data/${DB_FOLDER}
 EXPORT_REF="owpub_vmwaters1_wqx_Weekly_expdp.ref"
