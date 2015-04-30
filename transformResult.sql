@@ -9,6 +9,34 @@ select 'transform result start time: ' || systimestamp from dual;
 prompt dropping storet pc_result indexes
 exec etl_helper.drop_indexes('pc_result_swap_storet');
 
+prompt populating wqp_nemi_epa_crosswalk
+truncate table wqp_nemi_epa_crosswalk;
+insert /*+ append parallel(4) */ into wqp_nemi_epa_crosswalk
+select wqp_source,
+       analytical_procedure_source,
+       analytical_procedure_id,
+       source_method_identifier,
+       method_id,
+       method_source,
+       method_type,
+       case
+         when method_id is not null
+           then
+             case method_type
+               when 'analytical'
+                 then 'https://www.nemi.gov/methods/method_summary/' || method_id || '/'
+               when 'statistical'
+                 then 'https://www.nemi.gov/methods/sams_method_summary/' || method_id || '/'
+               end
+         else 
+           null 
+       end
+  from (select wqp_nemi_epa_crosswalk.*,
+               count(*) over (partition by analytical_procedure_source, analytical_procedure_id) cnt
+          from wqp_nemi_epa_crosswalk@nemi.er.usgs.gov)
+ where cnt = 1;
+commit;
+
 prompt populating storet pc_result
 truncate table pc_result_swap_storet;
 
@@ -33,17 +61,7 @@ select 3 data_source_id,
   from (select activity.mloc_uid station_id, 
                station.site_id,
                trunc(activity.act_start_date) event_date,
-	           case 
-	             when analytical_method_.method_id is not null
-	        	   then case analytical_method_.method_type
-	        		      when 'analytical'
-	        				then 'https://www.nemi.gov/methods/method_summary/' || analytical_method_.method_id || '/'
-	        			  when 'statistical'
-	        				then 'https://www.nemi.gov/methods/sams_method_summary/' || analytical_method_.method_id || '/'
-	        			  end
-	        	   else
-	        		 null
-	           end analytical_method,
+	           analytical_method_.nemi_url analytical_method,
                station.organization || '-' || activity.act_id activity,
                characteristic.chr_name characteristic_name,
                nvl(di_characteristic.characteristic_group_type, 'Not Assigned') characteristic_type,
@@ -183,8 +201,7 @@ select 3 data_source_id,
                                  analytical_method_context.amctx_cd,
                                  analytical_method.anlmth_name,
                                  analytical_method.anlmth_url,
-                                 wqp_nemi_epa_crosswalk.method_id,
-                                 wqp_nemi_epa_crosswalk.method_type
+                                 wqp_nemi_epa_crosswalk.nemi_url
                             from wqx.analytical_method
                                  left join wqx.analytical_method_context
                                    on analytical_method.amctx_uid = analytical_method_context.amctx_uid
