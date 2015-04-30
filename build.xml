@@ -56,7 +56,7 @@
 	<target name="grantsOnWqxTables" depends="setStopRun" unless="stopRun">
         <echo>Grant select on the imported tables in ${instance}</echo>
         <exec executable="sqlplus" failonerror="true">
-            <arg value="wqx{wqx_password}@${instance}"/>
+            <arg value="wqx/{wqx_password}@${instance}"/>
             <arg value="@${basedir}/wqx_grants.sql"/>
         </exec>
     </target>
