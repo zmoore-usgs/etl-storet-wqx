@@ -16,7 +16,7 @@ merge into wqx_station_local o
                     monitoring_location.hrdat_uid hrdat_uid,
                     nvl(mloc_huc_12, mloc_huc_8) huc,
                     nvl(country.cntry_cd,country_from_state.cntry_cd) cntry_cd,
-                    state.st_fips_cd st_fips_cd,
+                    to_char(state.st_fips_cd, 'fm00') st_fips_cd,
                     county.cnty_fips_cd,
                     sdo_cs.transform(mdsys.sdo_geometry(2001,
                                                         wqx_hrdat_to_srid.srid,
@@ -38,9 +38,8 @@ merge into wqx_station_local o
                       on monitoring_location.cnty_uid = county.cnty_uid
                     left join wqx.country country_from_state
                       on state.cntry_uid = country_from_state.cntry_uid
-              where org.org_id != 'WQXTEST' and
-         	        org.org_id != 'TESTGCSWQX' and
-                    org.org_id not like 'WQXWEBTRAINING%'
+              where org.org_id not like '%TEST%' and
+                    org.org_id not like '%TRAINING%'
             ) n
   on (o.station_source = n.station_source and
       o.station_id = n.station_id)
