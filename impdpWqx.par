@@ -52,7 +52,7 @@ tables=(
 	time_zone,
 	vertical_reference_datum,
 	vertical_collection_method,
-    voltism
+    voltinism
 	)
 table_exists_action=replace
 exclude=constraint,index,grant,trigger
