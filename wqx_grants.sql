@@ -64,6 +64,7 @@ grant select on sample_tissue_anatomy to wqp_core;
 grant select on state to wqp_core;
 grant select on taxon to wqp_core;
 grant select on thermal_preservative to wqp_core;
+grant select on toxicity_test_type to wqp_core;
 grant select on time_zone to wqp_core;
 grant select on vertical_collection_method to wqp_core;
 grant select on vertical_reference_datum to wqp_core;

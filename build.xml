@@ -95,6 +95,14 @@
         </exec>
     </target>
 
+    <target name="transformBiologicalResult">
+        <echo>Transform the Result Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/transformBiologicalResult.sql"/>
+        </exec>
+    </target>
+
     <target name="createSummaries">
         <echo>Create the Summary Tables</echo>
         <exec executable="sqlplus" failonerror="true">
@@ -158,7 +166,7 @@
             failonerror="true"
             username="storet_user"
             password="${storet_password}"
-            command="bash -e -x ${work.dir}/wqx_finish.sh"
+            command="bash -e -x ${work.dir}/wqx_finish.sh ${dbFolder}"
         />
     </target>
 	
