@@ -80,8 +80,8 @@ merge into wqx_station_local o
                     regexp_substr(governmental_unit_code, '[^:]+', 1, 2) st_fips_cd,
                     regexp_substr(governmental_unit_code, '[^:]+', 1, 3) cnty_fips_cd,
                     geom
-               from fa_station_no_source
-              where fa_station_no_source.site_id not in (select site_id from wqx_station_local)
+               from station_no_source
+              where station_no_source.site_id not in (select site_id from wqx_station_local)
             ) n
   on (o.station_source = n.station_source and
       o.station_id = n.station_id)
@@ -192,14 +192,13 @@ select 3 data_source_id,
                  on monitoring_location.mltyp_uid = monitoring_location_type.mltyp_uid
                left join wqx_site_type_conversion
                  on monitoring_location.mltyp_uid = wqx_site_type_conversion.mltyp_uid
-         where org.org_id != 'WQXTEST' and
-         	   org.org_id != 'TESTGCSWQX' and
-               org.org_id not like 'WQXWEBTRAINING%'
+         where org.org_id not like '%TEST%' and
+               org.org_id not like '%TRAINING%'
         union all 
         select wqx_station_local.station_id + 10000000 station_id,
-               fa_station_no_source.site_id,
-               fa_station_no_source.organization,
-           	   fa_station_no_source.site_type,
+               station_no_source.site_id,
+               station_no_source.organization,
+           	   station_no_source.site_type,
                nvl(wqx_station_local.calculated_huc_12, wqx_station_local.huc) huc,
                case
                  when wqx_station_local.calculated_fips is null or
@@ -208,24 +207,24 @@ select 3 data_source_id,
                  else 'US:' || substr(wqx_station_local.calculated_fips, 1, 2) || ':' || substr(wqx_station_local.calculated_fips, 3, 3)
                end governmental_unit_code, 
                wqx_station_local.geom,
-               fa_station_no_source.station_name,
-               fa_station_no_source.organization_name,
-               fa_station_no_source.description_text,
-               fa_station_no_source.station_type_name,
+               station_no_source.station_name,
+               station_no_source.organization_name,
+               station_no_source.description_text,
+               station_no_source.station_type_name,
                wqx_station_local.latitude,
                wqx_station_local.longitude,
-               fa_station_no_source.map_scale,
-               fa_station_no_source.geopositioning_method,
-               fa_station_no_source.hdatum_id_code,
-               fa_station_no_source.elevation_value,
-               fa_station_no_source.elevation_unit,
-               fa_station_no_source.elevation_method,
-               fa_station_no_source.vdatum_id_code,
+               station_no_source.map_scale,
+               station_no_source.geopositioning_method,
+               station_no_source.hdatum_id_code,
+               station_no_source.elevation_value,
+               station_no_source.elevation_unit,
+               station_no_source.elevation_method,
+               station_no_source.vdatum_id_code,
                null geoposition_accy_value,
                null geoposition_accy_unit
           from wqx_station_local
-               join fa_station_no_source
-                 on wqx_station_local.site_id = fa_station_no_source.site_id
+               join station_no_source
+                 on wqx_station_local.site_id = station_no_source.site_id
          where wqx_station_local.station_source = 'STORETW'
         ) a
     order by organization;
