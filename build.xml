@@ -61,7 +61,7 @@
         </exec>
     </target>
     
-    <target name="transformAndLoadData">
+    <target name="transformAndLoadData" depends="setStopRun" unless="stopRun">
         <echo>Running the main ETL Package</echo>
         <exec executable="sqlplus" failonerror="true">
             <arg value="wqp_core/${wqp_core_password}@${instance}"/>
