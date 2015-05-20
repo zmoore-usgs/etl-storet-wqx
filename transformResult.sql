@@ -228,8 +228,7 @@ select 3 data_source_id,
                left join wqx.result_lab_comment
                  on result.rlcom_uid = result_lab_comment.rlcom_uid
                left join storetw.di_characteristic
-                 on characteristic.chr_storet_id = di_characteristic.pk_isn
-         where activity.acmed_uid <> 3) a
+                 on characteristic.chr_storet_id = di_characteristic.pk_isn) a
     order by a.station_id;
 
 commit;
