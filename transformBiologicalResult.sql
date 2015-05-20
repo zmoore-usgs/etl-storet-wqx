@@ -16,17 +16,35 @@ insert /*+ append parallel(4) */
   into bio_result_swap_storet (data_source_id, data_source, station_id, site_id, event_date, analytical_method, activity,
                               characteristic_name, characteristic_type, sample_media, organization, site_type, huc, governmental_unit_code,
                               organization_name, activity_type_code, activity_media_subdiv_name, activity_start_time,
-                              act_start_time_zone, activity_stop_date, activity_stop_time, act_stop_time_zone, activity_depth,
+                              act_start_time_zone, activity_stop_date, activity_stop_time, act_stop_time_zone, activity_relative_depth_name, activity_depth,
                               activity_depth_unit, activity_depth_ref_point, activity_upper_depth, activity_upper_depth_unit,
                               activity_lower_depth, activity_lower_depth_unit, project_id, activity_conducting_org, activity_comment,
-                              sample_collect_method_id, sample_collect_method_ctx, sample_collect_method_name, sample_collect_equip_name,
-                              result_id, result_detection_condition_tx, sample_fraction_type, result_measure_value, result_unit,
-                              result_meas_qual_code, result_value_status, statistic_type, result_value_type, weight_basis_type, duration_basis,
-                              temperature_basis_level, particle_size, precision, result_comment, result_depth_meas_value,
-                              result_depth_meas_unit_code, result_depth_alt_ref_pt_txt, sample_tissue_taxonomic_name,
-                              sample_tissue_anatomy_name, analytical_procedure_id, analytical_procedure_source, analytical_method_name,
-                              analytical_method_citation, lab_name, analysis_date_time, lab_remark, detection_limit, detection_limit_unit,
-                              detection_limit_desc, analysis_prep_date_tx)
+                              activity_latitude, activity_longitude, activity_source_map_scale, act_horizontal_accuracy, act_horizontal_accuracy_unit,
+                              act_horizontal_collect_method, act_horizontal_datum_name, assemblage_sampled_name, act_collection_duration, act_collection_duration_unit,
+                              act_sam_compnt_name, act_sam_compnt_place_in_series, act_reach_length, act_reach_length_unit, act_reach_width, act_reach_width_unit,
+                              act_pass_count, net_type_name, act_net_surface_area, act_net_surface_area_unit, act_net_mesh_size, act_net_mesh_size_unit, act_boat_speed,
+                              act_boat_speed_unit, act_current_speed, act_current_speed_unit, toxicity_test_type_name,
+                              sample_collect_method_id, sample_collect_method_ctx, sample_collect_method_name,
+                              act_sam_collect_meth_qual_type, act_sam_collect_meth_desc, sample_collect_equip_name, act_sam_collect_equip_comments, act_sam_prep_meth_id,
+                              act_sam_prep_meth_context, act_sam_prep_meth_name, act_sam_prep_meth_qual_type, act_sam_prep_meth_desc, sample_container_type,
+                              sample_container_color, act_sam_chemical_preservative, thermal_preservative_name, act_sam_transport_storage_desc, metric_type_identifier,
+                              metric_type_context, metric_type_name, metric_citation_title, metric_citation_creator, metric_citation_subject, metric_citation_publisher,
+                              metric_citation_date, metric_citation_id, metric_type_scale, formula_description, activity_metric_value, activity_metric_unit,
+                              activity_metric_score, activity_metric_comment, index_identifier,
+                              result_id, res_data_logger_line, result_detection_condition_tx, method_specification_name, sample_fraction_type, result_measure_value,
+                              result_unit, result_meas_qual_code, result_value_status, statistic_type, result_value_type, weight_basis_type, duration_basis,
+                              temperature_basis_level, particle_size, precision, res_measure_bias, res_measure_conf_interval, res_measure_upper_conf_limit,
+                              res_measure_lower_conf_limit, result_comment, result_depth_meas_value, result_depth_meas_unit_code, result_depth_alt_ref_pt_txt,
+                              res_sampling_point_name, biological_intent, res_bio_individual_id, sample_tissue_taxonomic_name, unidentifiedspeciesidentifier,
+                              sample_tissue_anatomy_name, res_group_summary_ct_wt, res_group_summary_ct_wt_unit, cell_form_name, cell_shape_name, habit_name, volt_name,
+                              rtdet_pollution_tolerance, rtdet_pollution_tolernce_scale, rtdet_trophic_level, rtfgrp_functional_feeding_grp, taxon_citation_title,
+                              taxon_citation_creator, taxon_citation_subject, taxon_citation_publisher, taxon_citation_date, taxon_citation_id, fcdsc_name,
+                              frequency_class_unit, fcdsc_lower_bound, fcdsc_upper_bound, analytical_procedure_id, analytical_procedure_source, analytical_method_name,
+                              anlmth_qual_type, analytical_method_citation, lab_name, analysis_start_date, analysis_start_time, analysis_start_timezone, analysis_end_date,
+                              analysis_end_time, analysis_end_timezone, rlcom_cd, lab_remark, detection_limit, detection_limit_unit, detection_limit_desc,
+                              res_lab_accred_yn, res_lab_accred_authority, res_taxonomist_accred_yn, res_taxonomist_accred_authorty, prep_method_id, prep_method_context,
+                              prep_method_name, prep_method_qual_type, prep_method_desc, analysis_prep_date_tx, prep_start_time, prep_start_timezone, prep_end_date,
+                              prep_end_time, prep_end_timezone, prep_dilution_factor)
 select 3 data_source_id,
        'STORET' data_source,
        a.*
@@ -80,7 +98,7 @@ reach_width.msunt_cd act_reach_width_unit,
 activity.act_pass_count,
 net_type.nettyp_name net_type_name,
 activity.act_net_surface_area,
-activity.msunt_uid_net_surface_area,
+net_surface_unit.msunt_cd act_net_surface_area_unit,
 activity.act_net_mesh_size,
 net_mesh.msunt_cd act_net_mesh_size_unit,
 activity.act_boat_speed,
@@ -167,7 +185,7 @@ result.res_bio_individual_id,
 result.res_species_id UnidentifiedSpeciesIdentifier,
                sample_tissue_anatomy.stant_name sample_tissue_anatomy_name,
 result.res_group_summary_ct_wt,
-result.msunt_uid_group_summary_ct_wt,
+group_summ_ct_wt.msunt_cd res_group_summary_ct_wt_unit,
 cell_form.celfrm_name cell_form_name,
 cell_shape.celshp_name cell_shape_name,
 habit.habit_name,
@@ -194,10 +212,10 @@ analytical_method_.anlmth_qual_type,
                result.res_lab_name lab_name,
                to_char(result.res_lab_analysis_start_date, 'yyyy-mm-dd') analysis_date_time,
 result.res_lab_analysis_start_time,
-result.tmzone_uid_lab_analysis_start,
+analysis_start.tmzone_cd analysis_start_timezone,
 result.res_lab_analysis_end_date,
 result.res_lab_analysis_end_time,
-result.tmzone_uid_lab_analysis_end,
+analysis_end.tmzone_cd analysis_end_timezone,
 result_lab_comment.rlcom_cd,
                result_lab_comment.rlcom_desc lab_remark,
                detect.rdqlmt_measure detection_limit,
@@ -249,6 +267,8 @@ result_lab_sample_prep.rlsprp_dilution_factor
                  on activity.msunt_uid_depth_height_top = t_measurement_unit.msunt_uid
                left join wqx.measurement_unit h_measurement_unit
                  on activity.msunt_uid_depth_height = h_measurement_unit.msunt_uid
+               left join wqx.measurement_unit net_surface_unit
+                 on activity.msunt_uid_net_surface_area = net_surface_unit.msunt_uid
                left join wqx.time_zone end_time_zone
                  on activity.tmzone_uid_end_time = end_time_zone.tmzone_uid
                left join wqx.time_zone start_time_zone
@@ -321,6 +341,8 @@ result_lab_sample_prep.rlsprp_dilution_factor
                  on result.rtmpb_uid = result_temperature_basis.rtmpb_uid
                left join wqx.measurement_unit dhmeasurement_unit
                  on result.msunt_uid_depth_height = dhmeasurement_unit.msunt_uid
+               left join wqx.measurement_unit group_summ_ct_wt
+                 on result.msunt_uid_group_summary_ct_wt = group_summ_ct_wt.msunt_uid  
                left join (select analytical_method.anlmth_uid,
                                  analytical_method.anlmth_id,
                                  analytical_method_context.amctx_cd,
@@ -352,6 +374,10 @@ result_lab_sample_prep.rlsprp_dilution_factor
 				 on result_lab_sample_prep.tmzone_uid_start_time = prep_start.tmzone_uid
 			   left join wqx.time_zone prep_end
 				 on result_lab_sample_prep.tmzone_uid_end_time = prep_end.tmzone_uid
+			   left join wqx.time_zone analysis_start
+           on result.tmzone_uid_lab_analysis_start = analysis_start.tmzone_uid 
+			   left join wqx.time_zone analysis_end
+           on result.tmzone_uid_lab_analysis_end = analysis_end.tmzone_uid 
                left join wqx.taxon
                  on result.tax_uid = taxon.tax_uid
                left join wqx.sample_tissue_anatomy
@@ -387,8 +413,7 @@ result_lab_sample_prep.rlsprp_dilution_factor
 			   left join wqx.biological_habitat_index
 				 on activity_metric_index.bhidx_uid = biological_habitat_index.bhidx_uid
                left join wqx.relative_depth
-                 on activity.reldpth_uid = relative_depth.reldpth_uid
-         where activity.acmed_uid = 3) a
+                 on activity.reldpth_uid = relative_depth.reldpth_uid) a
     order by a.station_id;
 
 commit;

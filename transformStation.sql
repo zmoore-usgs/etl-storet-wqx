@@ -7,6 +7,12 @@ whenever oserror exit failure rollback;
 select 'transform station start time: ' || systimestamp from dual;
 
 prompt updating temporary table wqx_station_local from wqx
+delete from wqx_station_local
+ where station_source = 'WQX' and
+       not exists (select null
+                     from wqx.monitoring_location
+                    where wqx_station_local.station_id = monitoring_location.mloc_uid);
+commit;
 merge into wqx_station_local o 
       using (select 'WQX' station_source,
                     monitoring_location.mloc_uid station_id,
@@ -68,7 +74,12 @@ when not matched then insert (station_source, station_id, site_id, latitude, lon
 commit;
 
 prompt updating temporary table wqx_station_local from storetw
-
+delete from wqx_station_local
+ where station_source = 'STORETW' and
+       not exists (select null
+                     from station_no_source
+                    where wqx_station_local.station_id = station_no_source.station_id);
+commit;
 merge into wqx_station_local o 
       using (select 'STORETW' station_source,
                     station_id,
