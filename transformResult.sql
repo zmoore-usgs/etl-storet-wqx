@@ -251,7 +251,7 @@ insert /*+ append parallel(4) */
 select 3 data_source_id,
        'STORET' data_source,
        a.*
-  from (select pc_result_no_source.station_id, 
+  from (select station.station_id, 
                station.site_id,
                pc_result_no_source.event_date,
 	           pc_result_no_source.analytical_method,
