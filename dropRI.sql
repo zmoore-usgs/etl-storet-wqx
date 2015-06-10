@@ -6,6 +6,9 @@ whenever sqlerror exit failure rollback;
 whenever oserror exit failure rollback;
 select 'drop RI start time: ' || systimestamp from dual;
 
-exec etl_helper.drop_ri('storet');
+begin
+	etl_helper.drop_ri('storet');
+end;
+/
 
 select 'drop RI end time: ' || systimestamp from dual;
