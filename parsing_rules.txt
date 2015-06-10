@@ -1,0 +1,6 @@
+error /.*ORA-/
+error /.*SP2-/
+error /.Warning: Package Body created with compilation errors./
+error /.Usage 1: sqlplus -H | -V/
+error /.sqlplus: error/
+error /.Permission denied/

@@ -14,7 +14,8 @@ delete from wqx_station_local
                     where wqx_station_local.station_id = monitoring_location.mloc_uid);
 commit;
 merge into wqx_station_local o 
-      using (select 'WQX' station_source,
+      using (select /*+ parallel(4) */ 
+                    'WQX' station_source,
                     monitoring_location.mloc_uid station_id,
                     org.org_id || '-' || monitoring_location.mloc_id site_id,
                     monitoring_location.mloc_latitude latitude,
@@ -81,7 +82,8 @@ delete from wqx_station_local
                     where wqx_station_local.station_id = station_no_source.station_id);
 commit;
 merge into wqx_station_local o 
-      using (select 'STORETW' station_source,
+      using (select /*+ parallel(4) */ 
+                    'STORETW' station_source,
                     station_id,
                     site_id,
                     latitude,
@@ -154,7 +156,8 @@ insert /*+ append parallel(4) */
 select 3 data_source_id,
        'STORET' data_source,
        a.*
-  from (select monitoring_location.mloc_uid station_id,
+  from (select /*+ parallel(4) */ 
+               monitoring_location.mloc_uid station_id,
                org.org_id || '-' || monitoring_location.mloc_id site_id,
                org.org_id organization,
    	           wqx_site_type_conversion.station_group_type site_type,
@@ -206,7 +209,8 @@ select 3 data_source_id,
          where org.org_id not like '%TEST%' and
                org.org_id not like '%TRAINING%'
         union all 
-        select wqx_station_local.station_id + 10000000 station_id,
+        select /*+ parallel(4) */ 
+               wqx_station_local.station_id + 10000000 station_id,
                station_no_source.site_id,
                station_no_source.organization,
            	   station_no_source.site_type,
