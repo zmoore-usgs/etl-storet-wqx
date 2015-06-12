@@ -518,8 +518,8 @@ select 3 data_source_id,
                left join wqx.frequency_class_descriptor
                  on result_frequency_class.fcdsc_uid = frequency_class_descriptor.fcdsc_uid
 			   left join wqx.measurement_unit result_frequency
-				 on result_frequency_class.msunt_uid = result_frequency.msunt_uid) a
-    order by a.station_id;
+				 on result_frequency_class.msunt_uid = result_frequency.msunt_uid) a;
+--    order by a.station_id;
 
 commit;
 
@@ -606,8 +606,8 @@ select 3 data_source_id,
                result_no_source.analysis_prep_date_tx
           from result_no_source
                join station_swap_storet station
-                 on result_no_source.station_id + 10000000 = station.station_id) a
-    order by a.station_id;
+                 on result_no_source.station_id + 10000000 = station.station_id) a;
+--    order by a.station_id;
 
 commit;
 
