@@ -94,7 +94,7 @@ merge into wqx_station_local o
                     regexp_substr(governmental_unit_code, '[^:]+', 1, 3) cnty_fips_cd,
                     geom
                from station_no_source
-              where station_no_source.site_id not in (select site_id from wqx_station_local)
+              where station_no_source.site_id not in (select site_id from wqx_station_local where station_source = 'WQX')
             ) n
   on (o.station_source = n.station_source and
       o.station_id = n.station_id)
@@ -239,7 +239,7 @@ select 3 data_source_id,
                null geoposition_accy_unit
           from wqx_station_local
                join station_no_source
-                 on wqx_station_local.site_id = station_no_source.site_id
+                 on wqx_station_local.station_id = station_no_source.station_id
          where wqx_station_local.station_source = 'STORETW'
         ) a
     order by organization;
