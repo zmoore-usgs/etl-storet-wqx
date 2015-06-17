@@ -246,4 +246,7 @@ select 3 data_source_id,
 
 commit;
 
+prompt building storet station indexes
+exec etl_helper.create_station_indexes('storet');
+
 select 'transform station end time: ' || systimestamp from dual;

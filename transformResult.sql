@@ -636,5 +636,7 @@ select 3 data_source_id,
 
 commit;
 
+prompt building storet result indexes
+exec etl_helper.create_result_indexes('storet');
 
 select 'transform result end time: ' || systimestamp from dual;
