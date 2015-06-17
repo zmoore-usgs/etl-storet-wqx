@@ -87,6 +87,7 @@ select /*+ parallel(4) */ res_uid, rdqlmt_measure, msunt_cd, dqltyp_name
 commit;
 
 
+
 prompt populating wqx_activity
 truncate table wqx_activity;
 insert /*+ append parallel(4) */
@@ -133,7 +134,7 @@ select /*+ parallel(4) */
                activity.act_depth_height_bottom activity_lower_depth,           
                b_measurement_unit.msunt_cd activity_lower_depth_unit,      
                wqx_activity_project.project_id_list project_id,                     
-               activity_conducting_org.acorg_name activity_conducting_org,       
+               activity_conducting_org.acorg_name_list activity_conducting_org,       
                activity.act_comments activity_comment,    
                activity.act_loc_latitude activity_latitude,
                activity.act_loc_longitude activity_longitude,
@@ -199,7 +200,10 @@ select /*+ parallel(4) */
                  on activity.mloc_uid = station.station_id
                left join wqx.sample_collection_equip
                  on activity.sceqp_uid = sample_collection_equip.sceqp_uid
-               left join wqx.activity_conducting_org
+               left join (select act_uid,
+                                 listagg(acorg_name, ';') within group (order by rownum) acorg_name_list
+                            from wqx.activity_conducting_org
+                              group by act_uid) activity_conducting_org
                  on activity.act_uid = activity_conducting_org.act_uid
                left join wqx_activity_project
                  on activity.act_uid = wqx_activity_project.act_uid
@@ -255,9 +259,9 @@ select /*+ parallel(4) */
 			     on activity.thprsv_uid = thermal_preservative.thprsv_uid
                left join wqx.relative_depth
                  on activity.reldpth_uid = relative_depth.reldpth_uid;
-                 
-                 
-                 
+
+
+
 prompt dropping storet result indexes
 exec etl_helper.drop_indexes('result_swap_storet');
 
@@ -279,10 +283,7 @@ insert /*+ append parallel(4) */
                            sample_collect_method_id, sample_collect_method_ctx, sample_collect_method_name,
                            act_sam_collect_meth_qual_type, act_sam_collect_meth_desc, sample_collect_equip_name, act_sam_collect_equip_comments, act_sam_prep_meth_id,
                            act_sam_prep_meth_context, act_sam_prep_meth_name, act_sam_prep_meth_qual_type, act_sam_prep_meth_desc, sample_container_type,
-                           sample_container_color, act_sam_chemical_preservative, thermal_preservative_name, act_sam_transport_storage_desc, /*metric_type_identifier,
-                           metric_type_context, metric_type_name, metric_citation_title, metric_citation_creator, metric_citation_subject, metric_citation_publisher,
-                           metric_citation_date, metric_citation_id, metric_type_scale, formula_description, activity_metric_value, activity_metric_unit,
-                           activity_metric_score, activity_metric_comment, index_identifier,*/
+                           sample_container_color, act_sam_chemical_preservative, thermal_preservative_name, act_sam_transport_storage_desc,
                            result_id, res_data_logger_line, result_detection_condition_tx, method_specification_name, sample_fraction_type, result_measure_value,
                            result_unit, result_meas_qual_code, result_value_status, statistic_type, result_value_type, weight_basis_type, duration_basis,
                            temperature_basis_level, particle_size, precision, res_measure_bias, res_measure_conf_interval, res_measure_upper_conf_limit,
@@ -410,29 +411,29 @@ select 3 data_source_id,
                group_summ_ct_wt.msunt_cd res_group_summary_ct_wt_unit,
                cell_form.celfrm_name cell_form_name,
                cell_shape.celshp_name cell_shape_name,
-               habit.habit_name,
+               habit.habit_name_list habit_name,
                voltinism.volt_name,
                result_taxon_detail.rtdet_pollution_tolerance,
                result_taxon_detail.rtdet_pollution_tolernce_scale,
                result_taxon_detail.rtdet_trophic_level,
-               result_taxon_feeding_group.rtfgrp_functional_feeding_grp,
+               result_taxon_feeding_group.feeding_group_list rtfgrp_functional_feeding_grp,
                taxon_citation.citatn_title,
                taxon_citation.citatn_creator,
                taxon_citation.citatn_subject,
                taxon_citation.citatn_publisher,
                taxon_citation.citatn_date,
                taxon_citation.citatn_id,
-               frequency_class_descriptor.fcdsc_name,
-               result_frequency.msunt_cd frequency_class_unit,
-               result_frequency_class.fcdsc_lower_bound,
-               result_frequency_class.fcdsc_upper_bound,
+               /*frequency_class_descriptor.*/ null fcdsc_name,
+               /*result_frequency.msunt_cd*/ null frequency_class_unit,
+               /*result_frequency_class.*/ null fcdsc_lower_bound,
+               /*result_frequency_class.*/ null fcdsc_upper_bound,
          	   wqx_analytical_method.anlmth_id analytical_procedure_id,
          	   wqx_analytical_method.amctx_cd analytical_procedure_source,
         	   wqx_analytical_method.anlmth_name analytical_method_name,
                wqx_analytical_method.anlmth_qual_type,
         	   wqx_analytical_method.anlmth_url analytical_method_citation,
                result.res_lab_name lab_name,
-               to_char(result.res_lab_analysis_start_date, 'yyyy-mm-dd') analysis_date_time,
+               to_char(result.res_lab_analysis_start_date, 'yyyy-mm-dd') analysis_start_date,
                result.res_lab_analysis_start_time,
                analysis_start.tmzone_cd analysis_start_timezone,
                result.res_lab_analysis_end_date,
@@ -447,18 +448,18 @@ select 3 data_source_id,
                result.res_lab_accred_authority,
                result.res_taxonomist_accred_yn,
                result.res_taxonomist_accred_authorty,
-               result_lab_sample_prep.rlsprp_method_id,
-               result_lab_sample_prep.rlsprp_method_context,
-               result_lab_sample_prep.rlsprp_method_name,
-               result_lab_sample_prep.rlsprp_method_qual_type,
-               result_lab_sample_prep.rlsprp_method_desc,
-			   to_char(result_lab_sample_prep.rlsprp_start_date, 'yyyy-mm-dd') analysis_prep_date_tx,
-               result_lab_sample_prep.rlsprp_start_time,
-               prep_start.tmzone_cd prep_start_timezone,
-               result_lab_sample_prep.rlsprp_end_date,
-               result_lab_sample_prep.rlsprp_end_time,
-               prep_end.tmzone_cd prep_end_time,
-               result_lab_sample_prep.rlsprp_dilution_factor
+               /*result_lab_sample_prep.*/ null rlsprp_method_id,
+               /*result_lab_sample_prep.*/ null rlsprp_method_context,
+               /*result_lab_sample_prep.*/ null rlsprp_method_name,
+               /*result_lab_sample_prep.*/ null rlsprp_method_qual_type,
+               /*result_lab_sample_prep.*/ null rlsprp_method_desc,
+			   /*to_char(result_lab_sample_prep.rlsprp_start_date, 'yyyy-mm-dd')*/ null analysis_prep_date_tx,
+               /*result_lab_sample_prep.*/ null rlsprp_start_time,
+               /*prep_start.tmzone_cd*/ null prep_start_timezone,
+               /*result_lab_sample_prep.*/ null rlsprp_end_date,
+               /*result_lab_sample_prep.*/ null rlsprp_end_time,
+               /*prep_end.tmzone_cd*/ null prep_end_time,
+               /*result_lab_sample_prep.*/ null rlsprp_dilution_factor
           from wqx_activity
                join wqx.result
                  on wqx_activity.act_uid = result.act_uid
@@ -496,12 +497,12 @@ select 3 data_source_id,
                  on result.anlmth_uid = wqx_analytical_method.anlmth_uid
                left join wqx_detection_quant_limit
                  on result.res_uid = wqx_detection_quant_limit.res_uid
-               left join wqx.result_lab_sample_prep
-                 on result.res_uid = result_lab_sample_prep.res_uid 
+/*             left join wqx.result_lab_sample_prep
+                 on result.res_uid = result_lab_sample_prep.res_uid
 			   left join wqx.time_zone prep_start
 				 on result_lab_sample_prep.tmzone_uid_start_time = prep_start.tmzone_uid
-			   left join wqx.time_zone prep_end
-				 on result_lab_sample_prep.tmzone_uid_end_time = prep_end.tmzone_uid
+		       left join wqx.time_zone prep_end
+				 on result_lab_sample_prep.tmzone_uid_end_time = prep_end.tmzone_uid */
 			   left join wqx.time_zone analysis_start
                  on result.tmzone_uid_lab_analysis_start = analysis_start.tmzone_uid 
 			   left join wqx.time_zone analysis_end
@@ -514,15 +515,21 @@ select 3 data_source_id,
                  on result.rlcom_uid = result_lab_comment.rlcom_uid
                left join storetw.di_characteristic
                  on characteristic.chr_storet_id = di_characteristic.pk_isn
-               left join wqx.result_taxon_habit
-                 on result.res_uid = result_taxon_habit.res_uid
-               left join wqx.habit
-                 on result_taxon_habit.habit_uid = habit.habit_uid
+               left join (select result_taxon_habit.res_uid,
+                                 listagg(habit.habit_name, ';') within group (order by habit.habit_uid) habit_name_list
+                            from wqx.result_taxon_habit
+                                 left join wqx.habit
+                                   on result_taxon_habit.habit_uid = habit.habit_uid
+                               group by result_taxon_habit.res_uid) habit
+                 on result.res_uid = habit.res_uid
                left join wqx.result_taxon_detail
                  on result.res_uid = result_taxon_detail.res_uid
                left join wqx.voltinism
                  on result_taxon_detail.volt_uid = voltinism.volt_uid
-               left join wqx.result_taxon_feeding_group
+               left join (select res_uid,
+                                 listagg(rtfgrp_functional_feeding_grp, ';') within group (order by rownum) feeding_group_list
+                            from wqx.result_taxon_feeding_group
+                              group by res_uid) result_taxon_feeding_group
                  on result.res_uid = result_taxon_feeding_group.res_uid
                left join wqx.citation taxon_citation
                  on result_taxon_detail.citatn_uid = taxon_citation.citatn_uid
@@ -530,12 +537,13 @@ select 3 data_source_id,
 				 on result_taxon_detail.celfrm_uid = cell_form.celfrm_uid
 			   left join wqx.cell_shape
 				 on result_taxon_detail.celshp_uid = cell_shape.celshp_uid
-               left join wqx.result_frequency_class
+/*               left join wqx.result_frequency_class
                  on result.res_uid = result_frequency_class.res_uid
                left join wqx.frequency_class_descriptor
                  on result_frequency_class.fcdsc_uid = frequency_class_descriptor.fcdsc_uid
 			   left join wqx.measurement_unit result_frequency
-				 on result_frequency_class.msunt_uid = result_frequency.msunt_uid) a;
+				 on result_frequency_class.msunt_uid = result_frequency.msunt_uid */
+		) a;
 --    order by a.station_id;
 
 commit;
@@ -553,7 +561,7 @@ insert /*+ append parallel(4) */
                            temperature_basis_level, particle_size, precision, result_comment, result_depth_meas_value,
                            result_depth_meas_unit_code, result_depth_alt_ref_pt_txt, sample_tissue_taxonomic_name,
                            analytical_procedure_id, analytical_procedure_source, analytical_method_name, lab_name,
-                           analysis_date_time, lab_remark, detection_limit, detection_limit_unit, detection_limit_desc, analysis_prep_date_tx)
+                           analysis_start_date, lab_remark, detection_limit, detection_limit_unit, detection_limit_desc, analysis_prep_date_tx)
 select 3 data_source_id,
        'STORET' data_source,
        a.*
