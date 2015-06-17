@@ -8,6 +8,10 @@ select 'build summary tables start time: ' || systimestamp from dual;
 
 begin
 	etl_helper.create_summaries('storet');
+	etl_helper.create_station_sum_indexes('storet');
+	etl_helper.create_result_sum_indexes('storet');
+	etl_helper.create_result_ct_sum_indexes('storet');
+	etl_helper.create_result_nr_sum_indexes('storet');
 	etl_helper.create_qwportal_summary('storet');
 end;
 /

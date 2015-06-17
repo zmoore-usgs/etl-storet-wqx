@@ -3,7 +3,7 @@
 	
 	<!-- default and it's depends are the normal automated full ETL. -->
 	
-    <target name="default" depends="scpScript, dos2unix, extractData, importData, grantsOnWqxTables, transformAndLoadData, finishETL"/>
+    <target name="default" depends="scpScript, dos2unix, extractData, importData, grantsOnWqxTables, transformAndLoadData"/>
 
     <target name="scpScript">
         <echo>Copy the script to ${storet_host}</echo>
@@ -111,14 +111,6 @@
         </exec>
     </target>
 
-	<target name="buildIndexes">
-        <echo>Build the Indexes</echo>
-        <exec executable="sqlplus" failonerror="true">
-            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
-            <arg value="@${basedir}/buildIndexes.sql"/>
-        </exec>
-    </target>
-	
     <target name="addRI">
         <echo>Add back the RI</echo>
         <exec executable="sqlplus" failonerror="true">
