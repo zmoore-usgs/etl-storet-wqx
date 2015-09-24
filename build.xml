@@ -149,7 +149,7 @@
             trust="true"
             failonerror="true"
             username="storet_user"
-            password="${storet_password}"
+            password="${storet_user_password}"
             command="bash -e -x ${work.dir}/wqx_finish.sh ${dbFolder}"
         />
     </target>
