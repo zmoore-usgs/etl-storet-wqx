@@ -263,7 +263,7 @@ select /*+ parallel(4) */
 
 
 prompt dropping storet result indexes
-exec etl_helper.drop_indexes('result_swap_storet');
+exec etl_helper_result.drop_indexes('storet');
 
 prompt populating storet result
 truncate table result_swap_storet;
@@ -637,6 +637,6 @@ select 3 data_source_id,
 commit;
 
 prompt building storet result indexes
-exec etl_helper.create_result_indexes('storet');
+exec etl_helper_result.create_indexes('storet');
 
 select 'transform result end time: ' || systimestamp from dual;

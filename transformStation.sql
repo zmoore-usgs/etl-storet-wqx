@@ -142,7 +142,7 @@ update wqx_station_local
 commit;
 
 prompt dropping storet station indexes
-exec etl_helper.drop_indexes('station_swap_storet');
+exec etl_helper_station.drop_indexes('storet');
         
 prompt populating storet station
 truncate table station_swap_storet;
@@ -247,6 +247,6 @@ select 3 data_source_id,
 commit;
 
 prompt building storet station indexes
-exec etl_helper.create_station_indexes('storet');
+exec etl_helper_station.create_indexes('storet');
 
 select 'transform station end time: ' || systimestamp from dual;
