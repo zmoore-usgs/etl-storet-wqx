@@ -7,8 +7,8 @@ whenever oserror exit failure rollback;
 select 'install dw new data start time: ' || systimestamp from dual;
 
 begin
-	etl_helper.install('storet');
-	etl_helper.update_last_etl(3);
+	etl_helper_main.install('storet');
+	etl_helper_main.update_last_etl(3);
 end;
 /
 

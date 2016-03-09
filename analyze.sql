@@ -7,7 +7,7 @@ whenever oserror exit failure rollback;
 select 'analyze dw tables start time: ' || systimestamp from dual;
 
 begin
-	etl_helper.analyze_tables('storet');
+	etl_helper_main.analyze_tables('storet');
 end;
 /
 
