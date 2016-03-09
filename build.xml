@@ -3,7 +3,7 @@
 	
 	<!-- default and it's depends are the normal automated full ETL. -->
 	
-    <target name="default" depends="scpScript, dos2unix, extractData, importData, grantsOnWqxTables"/>
+    <target name="default" depends="scpScript, dos2unix, extractData, importData, grantAndAnalyzeWqxTables, transformAndLoadData, finishETL"/>
 
     <target name="scpScript">
         <echo>Copy the script to ${storet_host}</echo>
@@ -53,11 +53,11 @@
         </exec>
     </target>
     
-	<target name="grantsOnWqxTables" depends="setStopRun" unless="stopRun">
+	<target name="grantAndAnalyzeWqxTables" depends="setStopRun" unless="stopRun">
         <echo>Grant select on the imported tables in ${instance}</echo>
         <exec executable="sqlplus" failonerror="true">
             <arg value="wqx/${wqx_password}@${instance}"/>
-            <arg value="@${basedir}/wqx_grants.sql"/>
+            <arg value="@${basedir}/wqx_grants_and_analyze.sql"/>
         </exec>
     </target>
     
