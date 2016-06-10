@@ -34,6 +34,7 @@ select /*+ parallel(4) */
           from wqp_nemi_epa_crosswalk@nemi.er.usgs.gov)
  where cnt = 1;
 commit;
+select 'Building wqp_nemi_epa_crosswalk complete: ' || systimestamp from dual;
 
 prompt populating wqx_activity_project
 truncate table wqx_activity_project;
@@ -46,6 +47,7 @@ select /*+ parallel(4) */
          on activity_project.prj_uid = project.prj_uid
     group by activity_project.act_uid;
 commit;
+select 'Building wqx_actvity_project complete: ' || systimestamp from dual;
 
 prompt populating wqx_analytical_method
 truncate table wqx_analytical_method;
@@ -65,6 +67,7 @@ select /*+ parallel(4) */
          on analytical_method_context.amctx_cd = wqp_nemi_epa_crosswalk.analytical_procedure_source and
             analytical_method.anlmth_id = wqp_nemi_epa_crosswalk.analytical_procedure_id;
 commit;
+select 'Building wqx_analytical_method complete: ' || systimestamp from dual;
 
 prompt populating wqx_detection_quant_limit
 truncate table wqx_detection_quant_limit;
@@ -85,6 +88,7 @@ select /*+ parallel(4) */ res_uid, rdqlmt_measure, msunt_cd, dqltyp_name
  where dup_cnt = 1 and
        my_rank = 1;
 commit;
+select 'Building wqx_detection_quant_limit complete: ' || systimestamp from dual;
 
 
 
@@ -229,37 +233,38 @@ select /*+ parallel(4) */
                  on activity.acmed_uid = activity_media.acmed_uid
                left join wqx.measurement_unit activity_horizontal_unit
                  on activity.msunt_uid_horizontal_accuracy = activity_horizontal_unit.msunt_uid
-			   left join wqx.horizontal_collection_method
+               left join wqx.horizontal_collection_method
                  on activity.hcmth_uid = horizontal_collection_method.hcmth_uid
                left join wqx.horizontal_reference_datum
                  on activity.hrdat_uid = horizontal_reference_datum.hrdat_uid
-			   left join wqx.assemblage
-			     on activity.asmblg_uid = assemblage.asmblg_uid 
-			   left join wqx.measurement_unit collection_duration	 
-				 on activity.msunt_uid_collection_duration = collection_duration.msunt_uid
-			   left join wqx.measurement_unit reach_length
-			     on activity.msunt_uid_reach_length = reach_length.msunt_uid
-			   left join wqx.measurement_unit reach_width
-			     on activity.msunt_uid_reach_width = reach_width.msunt_uid
-			   left join wqx.net_type
-			     on activity.nettyp_uid = net_type.nettyp_uid
-			   left join wqx.measurement_unit net_mesh
-			     on activity.msunt_uid_net_mesh_size = net_mesh.msunt_uid
-			   left join wqx.measurement_unit boat_speed
-			     on activity.msunt_uid_boat_speed = boat_speed.msunt_uid
-			   left join wqx.measurement_unit current_speed
-			     on activity.msunt_uid_current_speed = current_speed.msunt_uid
-			   left join wqx.toxicity_test_type
-			     on activity.tttyp_uid = toxicity_test_type.tttyp_uid
-			   left join wqx.container_type
-			     on activity.contyp_uid = container_type.contyp_uid
-			   left join wqx.container_color
-			     on activity.concol_uid = container_color.concol_uid
-			   left join wqx.thermal_preservative
-			     on activity.thprsv_uid = thermal_preservative.thprsv_uid
+               left join wqx.assemblage
+                 on activity.asmblg_uid = assemblage.asmblg_uid 
+               left join wqx.measurement_unit collection_duration	 
+                 on activity.msunt_uid_collection_duration = collection_duration.msunt_uid
+               left join wqx.measurement_unit reach_length
+                 on activity.msunt_uid_reach_length = reach_length.msunt_uid
+               left join wqx.measurement_unit reach_width
+                 on activity.msunt_uid_reach_width = reach_width.msunt_uid
+               left join wqx.net_type
+                 on activity.nettyp_uid = net_type.nettyp_uid
+               left join wqx.measurement_unit net_mesh
+                 on activity.msunt_uid_net_mesh_size = net_mesh.msunt_uid
+               left join wqx.measurement_unit boat_speed
+                 on activity.msunt_uid_boat_speed = boat_speed.msunt_uid
+               left join wqx.measurement_unit current_speed
+                 on activity.msunt_uid_current_speed = current_speed.msunt_uid
+               left join wqx.toxicity_test_type
+                 on activity.tttyp_uid = toxicity_test_type.tttyp_uid
+               left join wqx.container_type
+                 on activity.contyp_uid = container_type.contyp_uid
+               left join wqx.container_color
+                 on activity.concol_uid = container_color.concol_uid
+               left join wqx.thermal_preservative
+                 on activity.thprsv_uid = thermal_preservative.thprsv_uid
                left join wqx.relative_depth
                  on activity.reldpth_uid = relative_depth.reldpth_uid;
-
+commit;
+select 'Building wqx_activity complete: ' || systimestamp from dual;
 
 
 prompt dropping storet result indexes
@@ -305,7 +310,7 @@ select 3 data_source_id,
                wqx_activity.station_id, 
                wqx_activity.site_id,
                wqx_activity.event_date,
-	           wqx_analytical_method.nemi_url analytical_method,
+               wqx_analytical_method.nemi_url analytical_method,
                wqx_activity.activity,
                characteristic.chr_name characteristic_name,
                nvl(di_characteristic.characteristic_group_type, 'Not Assigned') characteristic_type,
@@ -314,25 +319,25 @@ select 3 data_source_id,
                wqx_activity.site_type,
                wqx_activity.huc,
                wqx_activity.governmental_unit_code,
-               wqx_activity.organization_name,              
-               wqx_activity.activity_type_code,             
-               wqx_activity.activity_media_subdiv_name,     
-               wqx_activity.activity_start_time,            
-               wqx_activity.act_start_time_zone,            
-               wqx_activity.activity_stop_date,             
-               wqx_activity.activity_stop_time,             
+               wqx_activity.organization_name,
+               wqx_activity.activity_type_code,
+               wqx_activity.activity_media_subdiv_name,
+               wqx_activity.activity_start_time,
+               wqx_activity.act_start_time_zone,
+               wqx_activity.activity_stop_date,
+               wqx_activity.activity_stop_time,
                wqx_activity.act_stop_time_zone,
                wqx_activity.activity_relative_depth_name,
-               wqx_activity.activity_depth,                 
-               wqx_activity.activity_depth_unit,            
-               wqx_activity.activity_depth_ref_point,       
-               wqx_activity.activity_upper_depth,           
-               wqx_activity.activity_upper_depth_unit,      
-               wqx_activity.activity_lower_depth,           
-               wqx_activity.activity_lower_depth_unit,      
-               wqx_activity.project_id,                     
-               wqx_activity.activity_conducting_org,       
-               wqx_activity.activity_comment,    
+               wqx_activity.activity_depth,
+               wqx_activity.activity_depth_unit,
+               wqx_activity.activity_depth_ref_point,
+               wqx_activity.activity_upper_depth,
+               wqx_activity.activity_upper_depth_unit,
+               wqx_activity.activity_lower_depth,
+               wqx_activity.activity_lower_depth_unit,
+               wqx_activity.project_id,
+               wqx_activity.activity_conducting_org,
+               wqx_activity.activity_comment,
                wqx_activity.activity_latitude,
                wqx_activity.activity_longitude,
                wqx_activity.activity_source_map_scale,
@@ -360,9 +365,9 @@ select 3 data_source_id,
                wqx_activity.act_current_speed,
                wqx_activity.act_current_speed_unit,
                wqx_activity.toxicity_test_type_name,
-               wqx_activity.sample_collect_method_id,       
-               wqx_activity.sample_collect_method_ctx,      
-               wqx_activity.sample_collect_method_name, 
+               wqx_activity.sample_collect_method_id,
+               wqx_activity.sample_collect_method_ctx,
+               wqx_activity.sample_collect_method_name,
                wqx_activity.act_sam_collect_meth_qual_type,
                wqx_activity.act_sam_collect_meth_desc,
                wqx_activity.sample_collect_equip_name,
@@ -379,11 +384,11 @@ select 3 data_source_id,
                wqx_activity.act_sam_transport_storage_desc,
                result.res_uid result_id,
                result.res_data_logger_line,
-               nvl(case when regexp_substr(result.res_measure, '^-?\d*\.?\d*$') is null then result.res_measure end, result_detection_condition.rdcnd_name) result_detection_condition_tx,
+               result_detection_condition.rdcnd_name result_detection_condition_tx,
                method_speciation.mthspc_name method_specification_name,
                sample_fraction.smfrc_name sample_fraction_type,
-               case when regexp_substr(result.res_measure, '^-?\d*\.?\d*$') is not null then result.res_measure end result_measure_value,
-               case when regexp_substr(result.res_measure, '^-?\d*\.?\d*$') is not null then rmeasurement_unit.msunt_cd end result_unit,
+               result.res_measure result_measure_value,
+               rmeasurement_unit.msunt_cd result_unit,
                result_measure_qualifier.rmqlf_cd result_meas_qual_code,
                result_status.ressta_name result_value_status,
                result_statistical_base.rsbas_cd statistic_type,
@@ -427,11 +432,11 @@ select 3 data_source_id,
                /*result_frequency.msunt_cd*/ null frequency_class_unit,
                /*result_frequency_class.*/ null fcdsc_lower_bound,
                /*result_frequency_class.*/ null fcdsc_upper_bound,
-         	   wqx_analytical_method.anlmth_id analytical_procedure_id,
-         	   wqx_analytical_method.amctx_cd analytical_procedure_source,
-        	   wqx_analytical_method.anlmth_name analytical_method_name,
+               wqx_analytical_method.anlmth_id analytical_procedure_id,
+               wqx_analytical_method.amctx_cd analytical_procedure_source,
+               wqx_analytical_method.anlmth_name analytical_method_name,
                wqx_analytical_method.anlmth_qual_type,
-        	   wqx_analytical_method.anlmth_url analytical_method_citation,
+               wqx_analytical_method.anlmth_url analytical_method_citation,
                result.res_lab_name lab_name,
                to_char(result.res_lab_analysis_start_date, 'yyyy-mm-dd') analysis_start_date,
                result.res_lab_analysis_start_time,
@@ -453,7 +458,7 @@ select 3 data_source_id,
                /*result_lab_sample_prep.*/ null rlsprp_method_name,
                /*result_lab_sample_prep.*/ null rlsprp_method_qual_type,
                /*result_lab_sample_prep.*/ null rlsprp_method_desc,
-			   /*to_char(result_lab_sample_prep.rlsprp_start_date, 'yyyy-mm-dd')*/ null analysis_prep_date_tx,
+               /*to_char(result_lab_sample_prep.rlsprp_start_date, 'yyyy-mm-dd')*/ null analysis_prep_date_tx,
                /*result_lab_sample_prep.*/ null rlsprp_start_time,
                /*prep_start.tmzone_cd*/ null prep_start_timezone,
                /*result_lab_sample_prep.*/ null rlsprp_end_date,
@@ -463,10 +468,10 @@ select 3 data_source_id,
           from wqx_activity
                join wqx.result
                  on wqx_activity.act_uid = result.act_uid
-	           left join wqx.method_speciation
-		         on result.mthspc_uid = method_speciation.mthspc_uid
-	           left join wqx.biological_intent
-		         on result.bioint_uid = biological_intent.bioint_uid
+               left join wqx.method_speciation
+                 on result.mthspc_uid = method_speciation.mthspc_uid
+               left join wqx.biological_intent
+                 on result.bioint_uid = biological_intent.bioint_uid
                left join wqx.characteristic
                  on result.chr_uid = characteristic.chr_uid
                left join wqx.result_detection_condition
@@ -499,13 +504,13 @@ select 3 data_source_id,
                  on result.res_uid = wqx_detection_quant_limit.res_uid
 /*             left join wqx.result_lab_sample_prep
                  on result.res_uid = result_lab_sample_prep.res_uid
-			   left join wqx.time_zone prep_start
-				 on result_lab_sample_prep.tmzone_uid_start_time = prep_start.tmzone_uid
-		       left join wqx.time_zone prep_end
-				 on result_lab_sample_prep.tmzone_uid_end_time = prep_end.tmzone_uid */
-			   left join wqx.time_zone analysis_start
+               left join wqx.time_zone prep_start
+                 on result_lab_sample_prep.tmzone_uid_start_time = prep_start.tmzone_uid
+               left join wqx.time_zone prep_end
+                 on result_lab_sample_prep.tmzone_uid_end_time = prep_end.tmzone_uid */
+               left join wqx.time_zone analysis_start
                  on result.tmzone_uid_lab_analysis_start = analysis_start.tmzone_uid 
-			   left join wqx.time_zone analysis_end
+               left join wqx.time_zone analysis_end
                  on result.tmzone_uid_lab_analysis_end = analysis_end.tmzone_uid 
                left join wqx.taxon
                  on result.tax_uid = taxon.tax_uid
@@ -533,20 +538,21 @@ select 3 data_source_id,
                  on result.res_uid = result_taxon_feeding_group.res_uid
                left join wqx.citation taxon_citation
                  on result_taxon_detail.citatn_uid = taxon_citation.citatn_uid
-			   left join wqx.cell_form
-				 on result_taxon_detail.celfrm_uid = cell_form.celfrm_uid
-			   left join wqx.cell_shape
-				 on result_taxon_detail.celshp_uid = cell_shape.celshp_uid
+               left join wqx.cell_form
+                 on result_taxon_detail.celfrm_uid = cell_form.celfrm_uid
+               left join wqx.cell_shape
+                 on result_taxon_detail.celshp_uid = cell_shape.celshp_uid
 /*               left join wqx.result_frequency_class
                  on result.res_uid = result_frequency_class.res_uid
                left join wqx.frequency_class_descriptor
                  on result_frequency_class.fcdsc_uid = frequency_class_descriptor.fcdsc_uid
-			   left join wqx.measurement_unit result_frequency
-				 on result_frequency_class.msunt_uid = result_frequency.msunt_uid */
-		) a;
+               left join wqx.measurement_unit result_frequency
+                 on result_frequency_class.msunt_uid = result_frequency.msunt_uid */
+         where result.ressta_uid != 5
+        ) a;
 --    order by a.station_id;
-
 commit;
+select 'Building result_swap_storet from wqx complete: ' || systimestamp from dual;
 
 insert /*+ append parallel(4) */
   into result_swap_storet (data_source_id, data_source, station_id, site_id, event_date, analytical_method, activity,
@@ -569,7 +575,7 @@ select 3 data_source_id,
                station.station_id, 
                station.site_id,
                result_no_source.event_date,
-	           result_no_source.analytical_method,
+               result_no_source.analytical_method,
                result_no_source.activity,
                result_no_source.characteristic_name,
                result_no_source.characteristic_type,
@@ -578,28 +584,28 @@ select 3 data_source_id,
                station.site_type,
                station.huc,
                station.governmental_unit_code,
-               station.organization_name,              
-               result_no_source.activity_type_code,             
-               result_no_source.activity_media_subdiv_name,     
-               result_no_source.activity_start_time,            
-               result_no_source.act_start_time_zone,            
-               result_no_source.activity_stop_date,             
-               result_no_source.activity_stop_time,             
-               result_no_source.act_stop_time_zone,             
-               result_no_source.activity_depth,                 
-               result_no_source.activity_depth_unit,            
-               result_no_source.activity_depth_ref_point,       
-               result_no_source.activity_upper_depth,           
-               result_no_source.activity_upper_depth_unit,      
-               result_no_source.activity_lower_depth,           
-               result_no_source.activity_lower_depth_unit,      
-               result_no_source.project_id,                     
-               result_no_source.activity_conducting_org,       
-               result_no_source.activity_comment,             
-               result_no_source.sample_collect_method_id,       
-               result_no_source.sample_collect_method_ctx,      
-               result_no_source.sample_collect_method_name,  
-               result_no_source.sample_collect_equip_name,      
+               station.organization_name,
+               result_no_source.activity_type_code,
+               result_no_source.activity_media_subdiv_name,
+               result_no_source.activity_start_time,
+               result_no_source.act_start_time_zone,
+               result_no_source.activity_stop_date,
+               result_no_source.activity_stop_time,
+               result_no_source.act_stop_time_zone,
+               result_no_source.activity_depth,
+               result_no_source.activity_depth_unit,
+               result_no_source.activity_depth_ref_point,
+               result_no_source.activity_upper_depth,
+               result_no_source.activity_upper_depth_unit,
+               result_no_source.activity_lower_depth,
+               result_no_source.activity_lower_depth_unit,
+               result_no_source.project_id,
+               result_no_source.activity_conducting_org,
+               result_no_source.activity_comment,
+               result_no_source.sample_collect_method_id,
+               result_no_source.sample_collect_method_ctx,
+               result_no_source.sample_collect_method_name,
+               result_no_source.sample_collect_equip_name,
                result_no_source.result_id,
                result_no_source.result_detection_condition_tx,
                result_no_source.sample_fraction_type,
@@ -619,9 +625,9 @@ select 3 data_source_id,
                result_no_source.result_depth_meas_unit_code,
                result_no_source.result_depth_alt_ref_pt_txt,
                result_no_source.sample_tissue_taxonomic_name,
-         	   result_no_source.analytical_procedure_id,
-         	   result_no_source.analytical_procedure_source,
-        	   result_no_source.analytical_method_name,
+               result_no_source.analytical_procedure_id,
+               result_no_source.analytical_procedure_source,
+               result_no_source.analytical_method_name,
                result_no_source.lab_name,
                result_no_source.analysis_date_time,
                result_no_source.lab_remark,
@@ -633,8 +639,8 @@ select 3 data_source_id,
                join station_swap_storet station
                  on result_no_source.station_id + 10000000 = station.station_id) a;
 --    order by a.station_id;
-
 commit;
+select 'Building result_swap_storet from result_no_source complete: ' || systimestamp from dual;
 
 prompt building storet result indexes
 exec etl_helper_result.create_indexes('storet');

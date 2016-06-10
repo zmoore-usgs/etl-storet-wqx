@@ -11,8 +11,14 @@ delete from wqx_station_local
  where station_source = 'WQX' and
        not exists (select null
                      from wqx.monitoring_location
-                    where wqx_station_local.station_id = monitoring_location.mloc_uid);
+                          left join wqx.organization org
+                            on monitoring_location.org_uid = org.org_uid
+                    where wqx_station_local.station_id = monitoring_location.mloc_uid and
+                          org.org_id not like '%TEST%' and
+                          org.org_id not like '%TRAINING%');
 commit;
+select 'Delete missing wqx from wqx_station_local complete: ' || systimestamp from dual;
+
 merge into wqx_station_local o 
       using (select /*+ parallel(4) */ 
                     'WQX' station_source,
@@ -73,14 +79,19 @@ when not matched then insert (station_source, station_id, site_id, latitude, lon
                       values (n.station_source, n.station_id, n.site_id, n.latitude, n.longitude, n.hrdat_uid, n.huc, n.cntry_cd, n.st_fips_cd,
                               n.cnty_fips_cd, n.geom);
 commit;
+select 'Merge into wqx_station_local from wqx complete: ' || systimestamp from dual;
 
 prompt updating temporary table wqx_station_local from storetw
 delete from wqx_station_local
  where station_source = 'STORETW' and
        not exists (select null
                      from station_no_source
-                    where wqx_station_local.station_id = station_no_source.station_id);
+                    where wqx_station_local.station_id = station_no_source.station_id and
+                          organization not like '%TEST%' and
+                          organization not like '%TRAINING%');
 commit;
+select 'Delete missing no_source from wqx_station_local complete: ' || systimestamp from dual;
+
 merge into wqx_station_local o 
       using (select /*+ parallel(4) */ 
                     'STORETW' station_source,
@@ -94,7 +105,9 @@ merge into wqx_station_local o
                     regexp_substr(governmental_unit_code, '[^:]+', 1, 3) cnty_fips_cd,
                     geom
                from station_no_source
-              where station_no_source.site_id not in (select site_id from wqx_station_local where station_source = 'WQX')
+              where station_no_source.site_id not in (select site_id from wqx_station_local where station_source = 'WQX') and
+                    organization not like '%TEST%' and
+                    organization not like '%TRAINING%'
             ) n
   on (o.station_source = n.station_source and
       o.station_id = n.station_id)
@@ -119,31 +132,47 @@ when not matched then insert (station_source, station_id, site_id, latitude, lon
                       values (n.station_source, n.station_id, n.site_id, n.latitude, n.longitude, n.huc, n.cntry_cd, n.st_fips_cd,
                               n.cnty_fips_cd, n.geom);
 commit;
+select 'Merge no_source into wqx_station_local complete: ' || systimestamp from dual;
 
 --!!!!!!!!!!!!ONLY US/(US Teritory) stations are in the huc lookup table (mostly - some overlap on borders)!!!!!!!!!!!!!!!!!!!
 prompt calculating huc
-update wqx_station_local 
-   set calculated_huc_12 = (select huc8
-                              from huc8_geom_lookup
-                             where sdo_contains(huc8_geom_lookup.geom,
-	                                            wqx_station_local.geom) = 'TRUE')
- where calculated_huc_12 is null;
+merge into wqx_station_local o 
+      using (select /*+ parallel(4) */ 
+                    station_source,
+                    station_id,
+                    huc8
+               from huc8_geom_lookup,
+                    wqx_station_local
+              where sdo_contains(huc8_geom_lookup.geom,  wqx_station_local.geom) = 'TRUE' and
+                    calculated_huc_12 is null) n
+   on (o.station_id = n.station_id and
+       o.station_source = n.station_source)
+when matched then update set calculated_huc_12 = huc8;
 commit;
+select 'Calculating HUC complete: ' || systimestamp from dual;
 
 --!!!!!!!!!!!!ONLY US/(US Teritory) stations are in the county lookup tables (WQX does identify some US Teritories as a country)!!!!!!!!!!!!!!!!!!!
 prompt calculating geopolitical data
-update wqx_station_local 
-   set calculated_fips = (select statefp || countyfp
-                            from county_geom_lookup
-                           where sdo_contains(county_geom_lookup.geom,
-					                          wqx_station_local.geom) = 'TRUE')
- where calculated_fips is null and
-       cntry_cd in ('AS','PR','UM','US', 'VI');
+merge into wqx_station_local o 
+      using (select /*+ parallel(4) */ 
+                    station_source,
+                    station_id,
+                    statefp,
+                    countyfp
+               from county_geom_lookup,
+                    wqx_station_local
+              where sdo_contains(county_geom_lookup.geom,  wqx_station_local.geom) = 'TRUE' and
+                    cntry_cd in ('AS','PR','UM','US', 'VI') and
+                    calculated_fips is null) n
+   on (o.station_id = n.station_id and
+       o.station_source = n.station_source)
+when matched then update set calculated_fips = statefp || countyfp;
 commit;
+select 'Calculating Geopolitical Data complete: ' || systimestamp from dual;
 
 prompt dropping storet station indexes
 exec etl_helper_station.drop_indexes('storet');
-        
+
 prompt populating storet station
 truncate table station_swap_storet;
 
@@ -213,7 +242,7 @@ select 3 data_source_id,
                wqx_station_local.station_id + 10000000 station_id,
                station_no_source.site_id,
                station_no_source.organization,
-           	   station_no_source.site_type,
+               station_no_source.site_type,
                nvl(wqx_station_local.calculated_huc_12, wqx_station_local.huc) huc,
                case
                  when wqx_station_local.calculated_fips is null or
@@ -240,11 +269,14 @@ select 3 data_source_id,
           from wqx_station_local
                join station_no_source
                  on wqx_station_local.station_id = station_no_source.station_id
-         where wqx_station_local.station_source = 'STORETW'
+         where wqx_station_local.station_source = 'STORETW' and
+               station_no_source.organization not like '%TEST%' and
+               station_no_source.organization not like '%TRAINING%'
         ) a
     order by organization;
 
 commit;
+select 'Building storet station complete: ' || systimestamp from dual;
 
 prompt building storet station indexes
 exec etl_helper_station.create_indexes('storet');
