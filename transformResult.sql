@@ -548,7 +548,7 @@ select 3 data_source_id,
                  on result_frequency_class.fcdsc_uid = frequency_class_descriptor.fcdsc_uid
                left join wqx.measurement_unit result_frequency
                  on result_frequency_class.msunt_uid = result_frequency.msunt_uid */
-         where result.ressta_uid != 5
+         where result.ressta_uid != 4
         ) a;
 --    order by a.station_id;
 commit;
