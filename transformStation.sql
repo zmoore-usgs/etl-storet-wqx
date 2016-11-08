@@ -189,7 +189,7 @@ select 3 data_source_id,
                monitoring_location.mloc_uid station_id,
                org.org_id || '-' || monitoring_location.mloc_id site_id,
                org.org_id organization,
-   	           wqx_site_type_conversion.station_group_type site_type,
+               wqx_site_type_conversion.station_group_type site_type,
                nvl(wqx_station_local.calculated_huc_12, nvl(mloc_huc_12, mloc_huc_8)) huc,
                case
                  when wqx_station_local.calculated_fips is null or
