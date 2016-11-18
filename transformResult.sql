@@ -66,7 +66,7 @@ truncate table result_swap_storet;
 insert /*+ append parallel(4) */
   into result_swap_storet (data_source_id, data_source, station_id, site_id, event_date, analytical_method, activity,
                            characteristic_name, characteristic_type, sample_media, organization, site_type, huc, governmental_unit_code,
-                           organization_name, activity_type_code, activity_media_subdiv_name, activity_start_time,
+                           organization_name, activity_id, activity_type_code, activity_media_subdiv_name, activity_start_time,
                            act_start_time_zone, activity_stop_date, activity_stop_time, act_stop_time_zone, activity_relative_depth_name, activity_depth,
                            activity_depth_unit, activity_depth_ref_point, activity_upper_depth, activity_upper_depth_unit,
                            activity_lower_depth, activity_lower_depth_unit, project_id, activity_conducting_org, activity_comment,
@@ -109,6 +109,7 @@ select /*+ parallel(4) */
        activity_swap_storet.huc,
        activity_swap_storet.governmental_unit_code,
        activity_swap_storet.organization_name,
+       activity_swap_storet.activity_id,
        activity_swap_storet.activity_type_code,
        activity_swap_storet.activity_media_subdiv_name,
        activity_swap_storet.activity_start_time,
