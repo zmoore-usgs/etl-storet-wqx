@@ -28,7 +28,7 @@ The basic flow is:
 
 * Drop the indexes on the storet code lookup swap tables, populate with transformed data, and rebuild the indexes. (createCodes.sql)
 
-**Note:** Several code lookup values are dependent on data from the WQP\_NWIS\_ETL correctly collecting data from natprod.
+	**Note:** Several code lookup values are dependent on data from the WQP\_NWIS\_ETL correctly collecting data from natprod.
 
 
 * Add back the referential integrity constraints on the storet swap tables of the wqp_core schema. (addRI.sql)
