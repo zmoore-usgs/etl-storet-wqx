@@ -19,27 +19,6 @@ select /*+ parallel(4) */
 commit;
 select 'Building wqx_actvity_project complete: ' || systimestamp from dual;
 
-prompt populating wqx_detection_quant_limit
-truncate table wqx_detection_quant_limit;
-insert /*+ append parallel(4) */ into wqx_detection_quant_limit (res_uid, rdqlmt_measure, msunt_cd, dqltyp_name)
-select /*+ parallel(4) */ res_uid, rdqlmt_measure, msunt_cd, dqltyp_name
-  from (select result_detect_quant_limit.res_uid,
-               result_detect_quant_limit.rdqlmt_measure,
-               measurement_unit.msunt_cd,
-               detection_quant_limit_type.dqltyp_name,
-               count(*) over (partition by res_uid, result_detect_quant_limit.dqltyp_uid) dup_cnt,
-               dense_rank() over (partition by res_uid order by case when result_detect_quant_limit.dqltyp_uid = 2 then 1 else 99 end) my_rank
-          from wqx.result_detect_quant_limit
-               left join wqx.measurement_unit
-                 on result_detect_quant_limit.msunt_uid = measurement_unit.msunt_uid
-               left join wqx.detection_quant_limit_type
-                 on result_detect_quant_limit.dqltyp_uid = detection_quant_limit_type.dqltyp_uid
-         where result_detect_quant_limit.dqltyp_uid not in (4,5,8,9,10))
- where dup_cnt = 1 and
-       my_rank = 1;
-commit;
-select 'Building wqx_detection_quant_limit complete: ' || systimestamp from dual;
-
 prompt dropping storet activity indexes
 exec etl_helper_activity.drop_indexes('storet');
 

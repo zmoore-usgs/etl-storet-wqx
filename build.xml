@@ -1,17 +1,17 @@
 <project name="QwStoretWqxEtl" default="default">
 	<property name="work.dir" value="/pdc/wqp_data" />
-	
-	<!-- default and it's depends are the normal automated full ETL. -->
-	
+
+    <!-- default and it's depends are the normal automated full ETL. -->
+
     <target name="default" depends="scpScript, dos2unix, extractData, importData, grantAndAnalyzeWqxTables, transformAndLoadData, finishETL"/>
 
     <target name="scpScript">
         <echo>Copy the script to ${storet_host}</echo>
         <scp todir="storet_user:${storet_user_password}@${storet_host}:${work.dir}" trust="true">
-        	<fileset dir=".">
-        		<include name="wqx_dump.sh" />
-        		<include name="wqx_finish.sh" />
-        	</fileset>
+            <fileset dir=".">
+                <include name="wqx_dump.sh" />
+                <include name="wqx_finish.sh" />
+            </fileset>
         </scp>
     </target>
 
@@ -22,10 +22,10 @@
             username="storet_user"
             password="${storet_user_password}"
             command="dos2unix ${work.dir}/wqx_dump.sh ${work.dir}/wqx_finish.sh"
-        	verbose="${verbose}"
+            verbose="${verbose}"
         />
     </target>
-    
+
     <target name="extractData">
         <echo>Run the script at ${storet_host}</echo>
         <sshexec host="${storet_host}"
@@ -44,7 +44,7 @@
             <contains string="${pullResult}" substring="No new export to process." />
         </condition>
     </target>
-        
+
     <target name="importData" depends="setStopRun" unless="stopRun">
         <echo>Using impdp to load the wqp schema in ${instance}</echo>
         <exec executable="/usr/oracle/app/oracle/product/11.2.0/client_1/bin/impdp" failonerror="true">
@@ -52,15 +52,15 @@
             <arg value="parfile=impdpWqx.par"/>
         </exec>
     </target>
-    
-	<target name="grantAndAnalyzeWqxTables" depends="setStopRun" unless="stopRun">
+
+    <target name="grantAndAnalyzeWqxTables" depends="setStopRun" unless="stopRun">
         <echo>Grant select on the imported tables in ${instance}</echo>
         <exec executable="sqlplus" failonerror="true">
             <arg value="wqx/${wqx_password}@${instance}"/>
             <arg value="@${basedir}/wqx_grants_and_analyze.sql"/>
         </exec>
     </target>
-    
+
     <target name="transformAndLoadData" depends="setStopRun" unless="stopRun">
         <echo>Running the main ETL Package</echo>
         <exec executable="sqlplus" failonerror="true">
@@ -69,8 +69,8 @@
         </exec>
     </target>
 
-	<!-- The rest of these are if you want to run the ETL step-by-step manually. --> 
-	
+    <!-- The rest of these are if you want to run the ETL step-by-step manually. --> 
+
     <target name="dropRI">
         <echo>Drop the RI</echo>
         <exec executable="sqlplus" failonerror="true">
@@ -87,11 +87,35 @@
         </exec>
     </target>
 
+    <target name="transformActivity">
+        <echo>Transform the Result Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/transformActivity.sql"/>
+        </exec>
+    </target>
+
+    <target name="transformActivityMetric">
+        <echo>Transform the Result Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/transformActivityMetric.sql"/>
+        </exec>
+    </target>
+
     <target name="transformResult">
         <echo>Transform the Result Data</echo>
         <exec executable="sqlplus" failonerror="true">
             <arg value="wqp_core/${wqp_core_password}@${instance}"/>
             <arg value="@${basedir}/transformResult.sql"/>
+        </exec>
+    </target>
+
+    <target name="transformResDetectQntLmt">
+        <echo>Transform the Result Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/transformResDetectQntLmt.sql"/>
         </exec>
     </target>
 
@@ -153,5 +177,5 @@
             command="bash -e -x ${work.dir}/wqx_finish.sh ${dbFolder}"
         />
     </target>
-	
+
 </project>
