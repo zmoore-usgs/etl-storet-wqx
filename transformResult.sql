@@ -8,8 +8,9 @@ select 'transform result start time: ' || systimestamp from dual;
 
 prompt populating wqp_nemi_epa_crosswalk
 truncate table wqp_nemi_epa_crosswalk;
-insert /*+ append parallel(4) */ into wqp_nemi_epa_crosswalk
-select /*+ parallel(4) */ 
+insert /*+ append parallel(4) */
+  into wqp_nemi_epa_crosswalk
+select /*+ parallel(4) */
        wqp_source,
        analytical_procedure_source,
        analytical_procedure_id,
@@ -26,8 +27,8 @@ select /*+ parallel(4) */
                when 'statistical'
                  then 'https://www.nemi.gov/methods/sams_method_summary/' || method_id || '/'
                end
-         else 
-           null 
+         else
+           null
        end
   from (select wqp_nemi_epa_crosswalk.*,
                count(*) over (partition by analytical_procedure_source, analytical_procedure_id) cnt
@@ -36,11 +37,11 @@ select /*+ parallel(4) */
 commit;
 select 'Building wqp_nemi_epa_crosswalk complete: ' || systimestamp from dual;
 
-
 prompt populating wqx_analytical_method
 truncate table wqx_analytical_method;
-insert /*+ append parallel(4) */ into wqx_analytical_method (anlmth_uid, anlmth_id, amctx_cd, anlmth_name, anlmth_url, anlmth_qual_type, nemi_url)
-select /*+ parallel(4) */ 
+insert /*+ append parallel(4) */
+  into wqx_analytical_method (anlmth_uid, anlmth_id, amctx_cd, anlmth_name, anlmth_url, anlmth_qual_type, nemi_url)
+select /*+ parallel(4) */
        analytical_method.anlmth_uid,
        analytical_method.anlmth_id,
        analytical_method_context.amctx_cd,
@@ -56,6 +57,47 @@ select /*+ parallel(4) */
             analytical_method.anlmth_id = wqp_nemi_epa_crosswalk.analytical_procedure_id;
 commit;
 select 'Building wqx_analytical_method complete: ' || systimestamp from dual;
+
+prompt populating wqx_res_detect_qnt_lmt
+truncate table wqx_res_detect_qnt_lmt;
+insert /*+ append parallel(4) */
+  into wqx_res_detect_qnt_lmt (res_uid, rdqlmt_uid, rdqlmt_measure, msunt_cd, dqltyp_uid, dqltyp_name)
+select /*+ parallel(4) */
+       result_detect_quant_limit.res_uid,
+       result_detect_quant_limit.rdqlmt_uid,
+       result_detect_quant_limit.rdqlmt_measure,
+       measurement_unit.msunt_cd,
+       result_detect_quant_limit.dqltyp_uid,
+       detection_quant_limit_type.dqltyp_name
+  from wqx.result_detect_quant_limit
+       left join wqx.measurement_unit
+         on result_detect_quant_limit.msunt_uid = measurement_unit.msunt_uid
+       left join wqx.detection_quant_limit_type
+         on result_detect_quant_limit.dqltyp_uid = detection_quant_limit_type.dqltyp_uid;
+commit;
+select 'Building wqx_res_detect_qnt_lmt complete: ' || systimestamp from dual;
+
+prompt populating wqx_detection_quant_limit
+truncate table wqx_detection_quant_limit;
+insert /*+ append parallel(4) */
+  into wqx_detection_quant_limit (res_uid, rdqlmt_measure, msunt_cd, dqltyp_name)
+select /*+ parallel(4) */ res_uid, rdqlmt_measure, msunt_cd, dqltyp_name
+  from (select result_detect_quant_limit.res_uid,
+               result_detect_quant_limit.rdqlmt_measure,
+               measurement_unit.msunt_cd,
+               detection_quant_limit_type.dqltyp_name,
+               count(*) over (partition by res_uid, result_detect_quant_limit.dqltyp_uid) dup_cnt,
+               dense_rank() over (partition by res_uid order by case when result_detect_quant_limit.dqltyp_uid = 2 then 1 else 99 end) my_rank
+          from wqx.result_detect_quant_limit
+               left join wqx.measurement_unit
+                 on result_detect_quant_limit.msunt_uid = measurement_unit.msunt_uid
+               left join wqx.detection_quant_limit_type
+                 on result_detect_quant_limit.dqltyp_uid = detection_quant_limit_type.dqltyp_uid
+         where result_detect_quant_limit.dqltyp_uid not in (4,5,8,9,10))
+ where dup_cnt = 1 and
+       my_rank = 1;
+commit;
+select 'Building wqx_detection_quant_limit complete: ' || systimestamp from dual;
 
 prompt dropping storet result indexes
 exec etl_helper_result.drop_indexes('storet');
@@ -93,7 +135,7 @@ insert /*+ append parallel(4) */
                            res_lab_accred_yn, res_lab_accred_authority, res_taxonomist_accred_yn, res_taxonomist_accred_authorty, prep_method_id, prep_method_context,
                            prep_method_name, prep_method_qual_type, prep_method_desc, analysis_prep_date_tx, prep_start_time, prep_start_timezone, prep_end_date,
                            prep_end_time, prep_end_timezone, prep_dilution_factor)
-select /*+ parallel(4) */ 
+select /*+ parallel(4) */
        activity_swap_storet.data_source_id,
        activity_swap_storet.data_source,
        activity_swap_storet.station_id, 
@@ -289,7 +331,7 @@ select /*+ parallel(4) */
        left join wqx.measurement_unit dhmeasurement_unit
          on result.msunt_uid_depth_height = dhmeasurement_unit.msunt_uid
        left join wqx.measurement_unit group_summ_ct_wt
-         on result.msunt_uid_group_summary_ct_wt = group_summ_ct_wt.msunt_uid  
+         on result.msunt_uid_group_summary_ct_wt = group_summ_ct_wt.msunt_uid
        left join wqx_analytical_method 
          on result.anlmth_uid = wqx_analytical_method.anlmth_uid
        left join wqx_detection_quant_limit
@@ -301,7 +343,7 @@ select /*+ parallel(4) */
        left join wqx.time_zone prep_end
          on result_lab_sample_prep.tmzone_uid_end_time = prep_end.tmzone_uid */
        left join wqx.time_zone analysis_start
-         on result.tmzone_uid_lab_analysis_start = analysis_start.tmzone_uid 
+         on result.tmzone_uid_lab_analysis_start = analysis_start.tmzone_uid
        left join wqx.time_zone analysis_end
          on result.tmzone_uid_lab_analysis_end = analysis_end.tmzone_uid 
        left join wqx.taxon
@@ -361,8 +403,8 @@ insert /*+ append parallel(4) */
 select 3 data_source_id,
        'STORET' data_source,
        a.*
-  from (select /*+ parallel(4) */ 
-               station.station_id, 
+  from (select /*+ parallel(4) */
+               station.station_id,
                station.site_id,
                result_no_source.event_date,
                result_no_source.analytical_method,
@@ -429,7 +471,7 @@ select 3 data_source_id,
           from result_no_source
                join station_swap_storet station
                  on result_no_source.station_id + 10000000 = station.station_id) a;
---    order by a.station_id;
+
 commit;
 select 'Building result_swap_storet from result_no_source complete: ' || systimestamp from dual;
 
