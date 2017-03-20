@@ -7,7 +7,7 @@ whenever oserror exit failure rollback;
 select 'transform res_detect_qnt_limit start time: ' || systimestamp from dual;
 
 prompt dropping storet res_detect_qnt_lmt indexes
-exec etl_helper.res_detect_qnt_lmt.drop_indexes('storet');
+exec etl_helper_res_detect_qnt_lmt.drop_indexes('storet');
 
 prompt populating storet res_detect_qnt_lmt
 truncate table res_detect_qnt_lmt_swap_storet;
@@ -50,6 +50,6 @@ commit;
 select 'Building res_detect_qnt_lmt_swap_storet complete: ' || systimestamp from dual;
 
 prompt building storet res_detect_qnt_lmt indexes
-exec etl_helper_result.res_detect_qnt_lmt('storet');
+exec etl_helper_result_res_detect_qnt_lmt('storet');
 
 select 'transform res_detect_qnt_lmt end time: ' || systimestamp from dual;
