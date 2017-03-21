@@ -26,7 +26,7 @@ The basic flow is:
 
 * Drop the indexes on the storet result swap table, populate with transformed data, and rebuild the indexes. (transformResult.sql)
 
-* Drop the indexes on the storet res\_detect\_qnt\_int swap table, populate with transformed data, and rebuild the indexes. (transformResDetectQntLmt.sql)
+* Drop the indexes on the storet r\_detect\_qnt\_int swap table, populate with transformed data, and rebuild the indexes. (transformResDetectQntLmt.sql)
 
 * Drop the indexes on the storet summary swap tables, populate with transformed data, and rebuild the indexes. (createSummaries.sql)
 
