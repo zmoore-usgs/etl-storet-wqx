@@ -58,10 +58,10 @@ select /*+ parallel(4) */
 commit;
 select 'Building wqx_analytical_method complete: ' || systimestamp from dual;
 
-prompt populating wqx_res_detect_qnt_lmt
-truncate table wqx_res_detect_qnt_lmt;
+prompt populating wqx_r_detect_qnt_lmt
+truncate table wqx_r_detect_qnt_lmt;
 insert /*+ append parallel(4) */
-  into wqx_res_detect_qnt_lmt (res_uid, rdqlmt_uid, rdqlmt_measure, msunt_cd, dqltyp_uid, dqltyp_name)
+  into wqx_r_detect_qnt_lmt (res_uid, rdqlmt_uid, rdqlmt_measure, msunt_cd, dqltyp_uid, dqltyp_name)
 select /*+ parallel(4) */
        result_detect_quant_limit.res_uid,
        result_detect_quant_limit.rdqlmt_uid,
@@ -75,7 +75,7 @@ select /*+ parallel(4) */
        left join wqx.detection_quant_limit_type
          on result_detect_quant_limit.dqltyp_uid = detection_quant_limit_type.dqltyp_uid;
 commit;
-select 'Building wqx_res_detect_qnt_lmt complete: ' || systimestamp from dual;
+select 'Building wqx_r_detect_qnt_lmt complete: ' || systimestamp from dual;
 
 prompt populating wqx_detection_quant_limit
 truncate table wqx_detection_quant_limit;
