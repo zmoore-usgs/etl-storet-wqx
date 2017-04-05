@@ -103,6 +103,10 @@ exec etl_helper_result.drop_indexes('storet');
 prompt populating storet result
 truncate table result_swap_storet;
 
+select /*+ full(a) noparallel */ count(*) from activity_swap_storet a;
+select /*+ full(a) noparallel */ count(*) from wqx_analytical_method a;
+select /*+ full(a) noparallel */ count(*) from wqx_detection_quant_limit a;
+
 insert /*+ append parallel(4) */
   into result_swap_storet (data_source_id, data_source, station_id, site_id, event_date, analytical_method, activity,
                            characteristic_name, characteristic_type, sample_media, organization, site_type, huc, governmental_unit_code,
@@ -330,7 +334,7 @@ select /*+ parallel(4) */
          on result.msunt_uid_depth_height = dhmeasurement_unit.msunt_uid
        left join wqx.measurement_unit group_summ_ct_wt
          on result.msunt_uid_group_summary_ct_wt = group_summ_ct_wt.msunt_uid
-       left join wqx_analytical_method 
+       left join wqx_analytical_method
          on result.anlmth_uid = wqx_analytical_method.anlmth_uid
        left join wqx_detection_quant_limit
          on result.res_uid = wqx_detection_quant_limit.res_uid
