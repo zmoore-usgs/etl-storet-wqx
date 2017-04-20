@@ -1,6 +1,6 @@
 #!/bin/bash
 DATE_SUFFIX=`date +%Y%m%d_%H%M`
-HTTP_BASE=http://www.epa.gov/storet/download/storetw
+HTTP_BASE=https://www3.epa.gov/storet/download/storetw
 
 # display usage message
 function usage() {
