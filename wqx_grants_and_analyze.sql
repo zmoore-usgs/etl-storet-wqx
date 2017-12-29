@@ -14,6 +14,7 @@ grant select on activity_metric to wqp_core;
 grant select on activity_metric_index to wqp_core;
 grant select on activity_project to wqp_core;
 grant select on activity_type to wqp_core;
+grant select on attached_object to wqp_core;
 grant select on analytical_method to wqp_core;
 grant select on analytical_method_context to wqp_core;
 grant select on assemblage to wqp_core;
@@ -37,10 +38,12 @@ grant select on method_speciation to wqp_core;
 grant select on metric_type to wqp_core;
 grant select on metric_type_context to wqp_core;
 grant select on monitoring_location to wqp_core;
+grant select on monitoring_location_weight to wqp_core;
 grant select on monitoring_location_type to wqp_core;
 grant select on net_type to wqp_core;
 grant select on organization to wqp_core;
 grant select on project to wqp_core;
+grant select on reference_location_type to wqp_core;
 grant select on relative_depth to wqp_core;
 grant select on result to wqp_core;
 grant select on result_detect_quant_limit to wqp_core;
@@ -61,6 +64,7 @@ grant select on result_weight_basis to wqp_core;
 grant select on sample_collection_equip to wqp_core;
 grant select on sample_fraction to wqp_core;
 grant select on sample_tissue_anatomy to wqp_core;
+grant select on sampling_design_type to wqp_core;
 grant select on state to wqp_core;
 grant select on taxon to wqp_core;
 grant select on thermal_preservative to wqp_core;
@@ -79,14 +83,14 @@ begin
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'COUNTRY', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'STATE', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'COUNTY', method_opt => 'FOR ALL INDEXED COLUMNS');
-	
+
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'VERTICAL_REFERENCE_DATUM', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'VERTICAL_COLLECTION_METHOD', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'MEASUREMENT_UNIT', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'HORIZONTAL_REFERENCE_DATUM', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'HORIZONTAL_COLLECTION_METHOD', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'MONITORING_LOCATION_TYPE', method_opt => 'FOR ALL INDEXED COLUMNS');
-	
+
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'ACTIVITY_PROJECT', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'PROJECT', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'ANALYTICAL_METHOD', method_opt => 'FOR ALL INDEXED COLUMNS');
@@ -109,7 +113,7 @@ begin
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'CONTAINER_COLOR', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'THERMAL_PRESERVATIVE', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'RELATIVE_DEPTH', method_opt => 'FOR ALL INDEXED COLUMNS');
-	
+
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'RESULT', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'METHOD_SPECIATION', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'BIOLOGICAL_INTENT', method_opt => 'FOR ALL INDEXED COLUMNS');
@@ -134,7 +138,7 @@ begin
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'CITATION', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'CELL_FORM', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'CELL_SHAPE', method_opt => 'FOR ALL INDEXED COLUMNS');
-	
+
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'ACTIVITY_METRIC', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'ACTIVITY_METRIC_INDEX', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'BIOLOGICAL_HABITAT_INDEX', method_opt => 'FOR ALL INDEXED COLUMNS');
@@ -143,6 +147,11 @@ begin
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'METRIC_TYPE_CONTEXT', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'RESULT_FREQUENCY_CLASS', method_opt => 'FOR ALL INDEXED COLUMNS');
 	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'RESULT_LAB_SAMPLE_PREP', method_opt => 'FOR ALL INDEXED COLUMNS');
+
+	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'ATTACHED_OBJECT', method_opt => 'FOR ALL INDEXED COLUMNS');
+	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'MONITORING_LOCATION_WEIGHT', method_opt => 'FOR ALL INDEXED COLUMNS');
+	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'REFERENCE_LOCATION_TYPE', method_opt => 'FOR ALL INDEXED COLUMNS');
+	dbms_stats.gather_table_stats(ownname => 'WQX', tabname => 'SAMPLING_DESIGN_TYPE', method_opt => 'FOR ALL INDEXED COLUMNS');
 end;
 /
 
