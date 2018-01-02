@@ -42,12 +42,12 @@ select 3 data_source_id,
          when attached_object.has_blob is not null
            then '/organizations/' || pkg_dynamic_list.url_escape(organization.org_id, 'true') || '/projects/' || pkg_dynamic_list.url_escape(project.prj_id, 'true') || '/files'
          else null
-       end case project_file_url,
+       end project_file_url,
        case
          when monitoring_location_weight.has_weight is not null
            then '/organizations/' || pkg_dynamic_list.url_escape(organization.org_id, 'true') || '/projects/' || pkg_dynamic_list.url_escape(project.prj_id, 'true') || '/projectMonitoringLocationWeightings'
          else null
-       end case monitoring_location_weight_url
+       end monitoring_location_weight_url
   from wqx.project
        join wqx.organization
          on project.org_uid = organization.org_uid
