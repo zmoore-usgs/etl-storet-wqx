@@ -13,14 +13,14 @@ prompt populating storet project_object
 truncate table project_object_swap_storet;
 
 insert /*+ append parallel(4) */
-  into project_object(data_source_id,
-                      object_id,
-                      data_source,
-                      organization,
-                      project_identifier,
-                      object_name,
-                      object_type,
-                      object_content)
+  into project_object_swap_storet(data_source_id,
+                                  object_id,
+                                  data_source,
+                                  organization,
+                                  project_identifier,
+                                  object_name,
+                                  object_type,
+                                  object_content)
 select '3',
        atobj_uid,
        'STORET',
