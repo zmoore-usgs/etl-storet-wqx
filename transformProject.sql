@@ -13,20 +13,20 @@ prompt populating storet project
 truncate table project_data_swap_storet;
 
 insert /*+ append parallel(4) */
-  into project_data (data_source_id,
-                     project_id,
-                     data_source,
-                     organization,
-                     organization_name,
-                     project_identifier,
-                     project_name,
-                     description,
-                     sampling_design_type_code,
-                     qapp_approved_indicator,
-                     qapp_approval_agency_name,
-                     project_file_url,
-                     monitoring_location_weight_url
-                    )
+  into project_data_swap_storet (data_source_id,
+                                 project_id,
+                                 data_source,
+                                 organization,
+                                 organization_name,
+                                 project_identifier,
+                                 project_name,
+                                 description,
+                                 sampling_design_type_code,
+                                 qapp_approved_indicator,
+                                 qapp_approval_agency_name,
+                                 project_file_url,
+                                 monitoring_location_weight_url
+                                )
 select 3 data_source_id,
        project.prj_uid project_id,
        'STORET' data_source,
