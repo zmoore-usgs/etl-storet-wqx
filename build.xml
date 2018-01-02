@@ -80,10 +80,18 @@
     </target>
 
     <target name="transformProject">
-        <echo>Transform the Station Data</echo>
+        <echo>Transform the Project Data</echo>
         <exec executable="sqlplus" failonerror="true">
             <arg value="wqp_core/${wqp_core_password}@${instance}"/>
             <arg value="@${basedir}/transformProject.sql"/>
+        </exec>
+    </target>
+
+    <target name="transformProjectObject">
+        <echo>Transform the Project Object Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/transformProjectObject.sql"/>
         </exec>
     </target>
 
