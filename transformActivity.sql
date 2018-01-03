@@ -56,10 +56,10 @@ select /*+ parallel(4) */
        activity.act_uid activity_id,
        activity_type.actyp_cd activity_type_code,
        activity_media_subdivision.amsub_name activity_media_subdiv_name,
-       nvl(to_char(activity.act_start_time, 'hh24:mi:ss'), '00:00:00') activity_start_time,
+       nvl(to_char(activity.act_start_time, 'hh24:mi:ss'), null) activity_start_time,
        start_time_zone.tmzone_cd act_start_time_zone,
        to_char(activity.act_end_date, 'yyyy-mm-dd') activity_stop_date,
-       nvl2(act_end_date, nvl(to_char(activity.act_end_time, 'hh24:mi:ss'), '00:00:00'), null) activity_stop_time,
+       nvl2(act_end_date, nvl(to_char(activity.act_end_time, 'hh24:mi:ss'), null), null) activity_stop_time,
        end_time_zone.tmzone_cd act_stop_time_zone,
        relative_depth.reldpth_name activity_relative_depth_name,
        activity.act_depth_height activity_depth,
@@ -103,23 +103,23 @@ select /*+ parallel(4) */
          when activity.act_sam_collect_meth_id is not null and
               activity.act_sam_collect_meth_context is not null
            then activity.act_sam_collect_meth_id
-         else 'USEPA'
+         else null
        end sample_collect_method_id,
        case
          when activity.act_sam_collect_meth_id is not null and
               activity.act_sam_collect_meth_context is not null
            then activity.act_sam_collect_meth_context
-         else 'USEPA'
+         else null
        end sample_collect_method_ctx,
        case
          when activity.act_sam_collect_meth_id is not null and
               activity.act_sam_collect_meth_context is not null
            then activity.act_sam_collect_meth_name
-         else 'USEPA'
+         else null
        end sample_collect_method_name,
        activity.act_sam_collect_meth_qual_type,
        activity.act_sam_collect_meth_desc,
-       nvl(sample_collection_equip.sceqp_name, 'Unknown') sample_collect_equip_name,
+       nvl(sample_collection_equip.sceqp_name, null) sample_collect_equip_name,
        activity.act_sam_collect_equip_comments,
        activity.act_sam_prep_meth_id,
        activity.act_sam_prep_meth_context,

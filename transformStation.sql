@@ -14,8 +14,7 @@ delete from wqx_station_local
                           left join wqx.organization org
                             on monitoring_location.org_uid = org.org_uid
                     where wqx_station_local.station_id = monitoring_location.mloc_uid and
-                          org.org_id not like '%TEST%' and
-                          org.org_id not like '%TRAINING%');
+                          org.org_id not between 2000 and 2999;
 commit;
 select 'Delete missing wqx from wqx_station_local complete: ' || systimestamp from dual;
 
@@ -51,8 +50,7 @@ merge into wqx_station_local o
                       on monitoring_location.cnty_uid = county.cnty_uid
                     left join wqx.country country_from_state
                       on state.cntry_uid = country_from_state.cntry_uid
-              where org.org_id not like '%TEST%' and
-                    org.org_id not like '%TRAINING%'
+              where org.org_id not between 2000 and 2999;
             ) n
   on (o.station_source = n.station_source and
       o.station_id = n.station_id)
@@ -87,8 +85,7 @@ delete from wqx_station_local
        not exists (select null
                      from station_no_source
                     where wqx_station_local.station_id = station_no_source.station_id and
-                          organization not like '%TEST%' and
-                          organization not like '%TRAINING%');
+                          organization not between 2000 and 2999;
 commit;
 select 'Delete missing no_source from wqx_station_local complete: ' || systimestamp from dual;
 
@@ -106,8 +103,7 @@ merge into wqx_station_local o
                     geom
                from station_no_source
               where station_no_source.site_id not in (select site_id from wqx_station_local where station_source = 'WQX') and
-                    organization not like '%TEST%' and
-                    organization not like '%TRAINING%'
+                    organization not between 2000 and 2999;
             ) n
   on (o.station_source = n.station_source and
       o.station_id = n.station_id)
@@ -205,10 +201,10 @@ select 3 data_source_id,
                monitoring_location.mloc_latitude latitude,
                monitoring_location.mloc_longitude longitude,
                cast(monitoring_location.mloc_source_map_scale as varchar2(4000 char)) map_scale,
-               nvl(horizontal_collection_method.hcmth_name, 'Unknown') geopositioning_method,
-               nvl(horizontal_reference_datum.hrdat_name, 'Unknown') hdatum_id_code,
+               nvl(horizontal_collection_method.hcmth_name, null) geopositioning_method,
+               nvl(horizontal_reference_datum.hrdat_name, null) hdatum_id_code,
                monitoring_location.mloc_vertical_measure elevation_value,
-               nvl2(monitoring_location.mloc_vertical_measure, nvl(measurement_unit.msunt_cd, 'ft'), null) elevation_unit,
+               nvl2(monitoring_location.mloc_vertical_measure, nvl(measurement_unit.msunt_cd, null), null) elevation_unit,
                nvl2(monitoring_location.mloc_vertical_measure, vertical_collection_method.vcmth_name, null) elevation_method,
                nvl2(monitoring_location.mloc_vertical_measure, vertical_reference_datum.vrdat_name, null) vdatum_id_code,
                monitoring_location.mloc_horizontal_accuracy geoposition_accy_value,
@@ -235,8 +231,7 @@ select 3 data_source_id,
                  on monitoring_location.mltyp_uid = monitoring_location_type.mltyp_uid
                left join wqx_site_type_conversion
                  on monitoring_location.mltyp_uid = wqx_site_type_conversion.mltyp_uid
-         where org.org_id not like '%TEST%' and
-               org.org_id not like '%TRAINING%'
+         where org.org_id not between 2000 and 2999;
         union all 
         select /*+ parallel(4) */ 
                wqx_station_local.station_id + 10000000 station_id,
@@ -270,8 +265,7 @@ select 3 data_source_id,
                join station_no_source
                  on wqx_station_local.station_id = station_no_source.station_id
          where wqx_station_local.station_source = 'STORETW' and
-               station_no_source.organization not like '%TEST%' and
-               station_no_source.organization not like '%TRAINING%'
+               station_no_source.organization not between 2000 and 2999;
         ) a
     order by organization;
 
