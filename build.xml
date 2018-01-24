@@ -135,6 +135,14 @@
         </exec>
     </target>
 
+    <target name="transformProjectMLWeighting">
+        <echo>Transform the Project ML Weighting Data</echo>
+        <exec executable="sqlplus" failonerror="true">
+            <arg value="wqp_core/${wqp_core_password}@${instance}"/>
+            <arg value="@${basedir}/transformProjectMLWeighting.sql"/>
+        </exec>
+    </target>
+
     <target name="createSummaries">
         <echo>Create the Summary Tables</echo>
         <exec executable="sqlplus" failonerror="true">
