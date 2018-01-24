@@ -4,7 +4,7 @@ set timing on;
 set serveroutput on;
 whenever sqlerror exit failure rollback;
 whenever oserror exit failure rollback;
-select 'transform project ML weighting start time: ' || systimestamp from dual;
+select 'transform prj_ml_weighting start time: ' || systimestamp from dual;
 
 prompt dropping storet prj_ml_weighting indexes
 exec etl_helper_prj_ml_weighting.drop_indexes('storet');
