@@ -160,7 +160,7 @@ merge into wqx_station_local o
                     calculated_fips is null) n
    on (o.station_id = n.station_id and
        o.station_source = n.station_source)
-when matched then update set calculated_fips = fips_state_code || fips_county_codeeom ;
+when matched then update set calculated_fips = fips_state_code || fips_county_code;
 commit;
 select 'Calculating Geopolitical Data complete: ' || systimestamp from dual;
 
