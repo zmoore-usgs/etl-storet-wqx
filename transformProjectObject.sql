@@ -22,19 +22,19 @@ insert /*+ append parallel(4) */
                                   object_type,
                                   object_content)
 select '3',
-       atobj_uid,
+       attached_object.atobj_uid,
        'STORET',
        organization.org_id organization,
        project.prj_id project_identifier,
-       atobj_file_name,
-       atobj_type,
-       atobj_content
+       attached_object.atobj_file_name,
+       attached_object.atobj_type,
+       attached_object.atobj_content
   from wqx.attached_object
        join wqx.organization
          on attached_object.org_uid = organization.org_uid
        join wqx.project
          on attached_object.ref_uid = project.prj_uid
- where tbl_uid = 1;
+ where attached_object.tbl_uid = 1;
 
 commit;
 select 'Building storet project_object complete: ' || systimestamp from dual;
